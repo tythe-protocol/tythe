@@ -17,6 +17,7 @@ While the OSS ecosystem is spectacularly creative and prolific, it does not do a
 * Applicable to for-profit users. Non-profit users aren't expected to pay tithes.
 * Enforced socially. There are no license changes. There is no legal enforcement.
 * Scaled with revenue. Large businesses pay more than small businesses.
+* Open. Money flows directly from users to developers with nobody in the middle.
 
 ## Format
 
@@ -44,14 +45,19 @@ st = base_price_monthly * clamp(R, 1, 1000)
 
 Where `R` is the the company's revenue last year, in millions USD. Companies with revenues reported in other currencies should calculate by first converting to equivalent USD at exchange rate from Jan 1 this year.
 
-## Badges
+## Committments
 
-We envision an array of badges that users of open source projects can display on their websites declaring their level of support for tithes.
+We envision an array of badges that users of open source projects can display on their websites declaring their committment to open source tithes.
 
-A company would commit publicly to support 100% of tithes in their codebase. Or more realistically, 90% or 80%.
+A company would display a badge that advertises their promise to support 100% (or more likely 95% or 90%) of their required tithe.
 
-There could even be audit services to prove the committment, though I'm not sure that's necessary.
+Given the large number of open source developers inside almost all companies, we expect voluntary compliance with these public committments to be quite high.
 
-## Implementations
+# Getting Started
 
-TODO - there would eventually go here links to software packages one could run against a directory tree to find all tithes, compute a report, pay tithes, or even do so continuously.
+There's nothing here now, but I am imaging a variety of software to make calculating, paying, and otherwise working with tithes easier:
+
+1. The very first thing could just be a Patreon integration - users of a software project can click a button on Github to pay via Patreon.
+2. A command-line project to find all tithes in a directory and generate a report.
+3. A way to do (2) but also make the correct payments.
+4. A way to do (2) but show a visual report of where money is going.
