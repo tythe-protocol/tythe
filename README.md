@@ -46,11 +46,11 @@ Where `R` is the the company's revenue last year, in millions USD. Companies wit
 
 ## Badges
 
-We envision an array of badges that users of open source projects can display on their websites declaring their level of support for open source tithes.
+We envision an array of badges that users of open source projects can display on their websites declaring their level of support for tithes.
 
-A company could commit publicly to support 100% of tithes in their codebase. Or more realistically, 90% or 80%.
+A company would commit publicly to support 100% of tithes in their codebase. Or more realistically, 90% or 80%.
 
-There could even be audit services to enforce the committment, though I'm not sure that's necessary.
+There could even be audit services to prove the committment, though I'm not sure that's necessary.
 
 ## Implementations
 
