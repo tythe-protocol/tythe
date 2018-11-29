@@ -29,7 +29,7 @@ While the OSS ecosystem is spectacularly creative and prolific, it does not do a
     },
     "base_price_monthly": {
         "currency": "EUR",
-        "amount": "5",
+        "amount": "2",
     },
 }
 ```
