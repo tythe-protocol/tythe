@@ -47,17 +47,17 @@ Where `R` is the the company's revenue last year, in millions USD. Companies wit
 
 ## Commitments
 
-We envision an array of badges that users of open source projects can display on their websites declaring their commitment to open source tithes.
+We envision an array of badges that users of open source projects can display on their websites declaring their commitment to open source tythes.
 
-A company would display a badge that advertises their promise to support 100% (or more likely 95% or 90%) of their required tithe.
+A company would display a badge that advertises their promise to support 100% (or more likely 95% or 90%) of their required tythe.
 
 Given the large number of open source developers inside almost all companies, we expect voluntary compliance with these public commitments to be quite high.
 
 # Getting Started
 
-There's nothing here now, but I am imaging a variety of software to make calculating, paying, and otherwise working with tithes easier:
+There's nothing here now, but I am imaging a variety of software to make calculating, paying, and otherwise working with tythes easier:
 
 1. The very first thing could just be a Patreon integration - users of a software project can click a button on Github to pay via Patreon.
-2. A command-line project to find all tithes in a directory and generate a report.
+2. A command-line project to find all tythes in a directory and generate a report.
 3. A way to do (2) but also make the correct payments.
 4. A way to do (2) but show a visual report of where money is going.
