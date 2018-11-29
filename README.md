@@ -1,4 +1,4 @@
-# Tithe
+# Tythe
 
 *Support the church of open source*
 
@@ -10,11 +10,11 @@ While the OSS ecosystem is spectacularly creative and prolific, it does not do a
 
 ## Proposal
 
-`tithe.json` is a standard way for an open source project to suggest a donation.
+`tythe.json` is a standard way for an open source project to suggest a donation.
 
-*Tithes* are:
+*Tythes* are:
 
-* Applicable to for-profit users. Non-profit users aren't expected to pay tithes.
+* Applicable to for-profit users. Non-profit users aren't expected to pay tythes.
 * Enforced socially. There are no license changes. There is no legal enforcement.
 * Scaled with revenue. Large businesses pay more than small businesses.
 * Open. Money flows directly from users to developers with nobody in the middle.
@@ -35,9 +35,9 @@ While the OSS ecosystem is spectacularly creative and prolific, it does not do a
 }
 ```
 
-## Calculating the Scaled Tithe
+## Calculating the Scaled Tythe
 
-The *scaled tithe* a company should pay is calculated like so:
+The *scaled tythe* a company should pay is calculated like so:
 
 ```
 st = base_price_monthly * clamp(R, 1, 1000)
