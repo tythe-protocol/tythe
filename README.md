@@ -6,7 +6,7 @@
 
 Open source software is now critical infrastructure for most businesses. Yet most OSS is not actively maintained. Bugs go unaddressed. Critical features go missing and are hacked around. Malicious changes can even get introduced without being noticed.
 
-The key issue is that OSS doesn’t incentivize anyone to do the grungy day-to-day work to keep critical software infrastructure working correctly.
+While the OSS ecosystem is spectacularly creative and productive, OSS alone does not do a good job of incentivizing *maintenance*: the day-to-day work required to keep old software working, adapt it to new targets, update its dependencies, and add new features.
 
 ## Proposal
 
