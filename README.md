@@ -45,13 +45,13 @@ st = base_price_monthly * clamp(R, 1, 1000)
 
 Where `R` is the the company's revenue last year, in millions USD. Companies with revenues reported in other currencies should calculate by first converting to equivalent USD at exchange rate from Jan 1 this year.
 
-## Committments
+## Commitments
 
-We envision an array of badges that users of open source projects can display on their websites declaring their committment to open source tithes.
+We envision an array of badges that users of open source projects can display on their websites declaring their commitment to open source tithes.
 
 A company would display a badge that advertises their promise to support 100% (or more likely 95% or 90%) of their required tithe.
 
-Given the large number of open source developers inside almost all companies, we expect voluntary compliance with these public committments to be quite high.
+Given the large number of open source developers inside almost all companies, we expect voluntary compliance with these public commitments to be quite high.
 
 # Getting Started
 
