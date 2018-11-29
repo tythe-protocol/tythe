@@ -24,7 +24,7 @@ While the OSS ecosystem is spectacularly creative and prolific, it does not do a
 ```
 {
     "destination": {
-        # Other supported formats - bitcoin, wire, ech
+        # Other supported formats - bitcoin, wire, ach
         "type": "paypal",
         "detail": "maintainer@project.org",
     },
