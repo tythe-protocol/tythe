@@ -1,63 +1,65 @@
-# Tythe
+# Why
 
-*Support the church of open source*
+Open Source started out as a fringe movement. But over several decades, it has grown into absolutely critical shared infrastructure. To a close approximation, *all* companies are now heavily dependent upon open source. We won!
 
-## Problem
+However. Open source is also basically unmaintained. The people most capable of doing the maintenance are typically doing so at night and on weekends, while they work something unrelated during the day to make a living.
 
-Open source software is now critical infrastructure for most businesses. Yet most OSS is not actively maintained. Bugs go unaddressed. Critical features go missing and are hacked around. Malicious changes can even get introduced without being noticed.
+It’s time to evolve. We need to direct resources to maintaining our digital commons and allow the right people to do that full-time.
 
-While the OSS ecosystem is spectacularly creative and prolific, it does not do a good job of incentivizing *maintenance*: the day-to-day work required to keep old software working, adapt it to new targets, update its dependencies, and add new features.
+# How
 
-## Proposal
+1. Open source maintainers add [tythe.json](./tythe-sample.json) to their repositories. This declares how to send them money in a machine-readable way.
+2. Companies take [The Tythe Covenant](./covenant.html) by posting it to social media, or on their website. The Covenant is a public promise to contribute [up to 1%](#calculating-your-tythe) of R&D monthly to open source maintenance. Enforcement of the convenant is entirely social.
+3. Companies use [go-tythe](#tools) (or whatever other tool they want) to automatically distribute and send money to the maintainers of their dependencies every month.
+4. 🙌
 
-`tythe.json` is a standard way for an open source project to suggest a donation.
+# Calculating your Tythe
 
-*Tythes* are:
-
-* Applicable to for-profit users. Non-profit users aren't expected to pay tythes.
-* Enforced socially. There are no license changes. There is no legal enforcement.
-* Scaled with revenue. Large businesses pay more than small businesses.
-* Open. Money flows directly from users to developers with nobody in the middle.
-
-## Format
+A company's tythe is based on its R&D expenditure. It will never be greater than 1% of this value, and usually significantly smaller.
 
 ```
-{
-    "destination": {
-        # Other supported formats - bitcoin, wire, ach
-        "type": "paypal",
-        "detail": "maintainer@project.org",
-    },
-    "base_price_monthly": {
-        "currency": "EUR",
-        "amount": "2",
-    },
-}
+tythe = R&D * 0.1 * tythed_deps / total_deps
+
+R&D:         your current R&D expenditure
+total_deps:  count of your transitive dependencies
+tythed_deps: subset of total_deps that contain a tythe.json
 ```
 
-## Calculating the Scaled Tythe
+## Example 1
 
-The *scaled tythe* a company should pay is calculated like so:
+ * Your current R&D expenditure: `$2M/yr`
+ * Number of transitive dependencies in your tree: `500`
+ * Number of transitive dependencies that include `tythe.json`: `150`
+ 
+Your tythe is: `$2M * 0.1 * 150 / 500 = $6000/year` or `$500/month`
 
-```
-st = base_price_monthly * clamp(R, 1, 1000)
-```
+## Example 2
 
-Where `R` is the the company's revenue last year, in millions USD. Companies with revenues reported in other currencies should calculate by first converting to equivalent USD at exchange rate from Jan 1 this year.
+ * Your current R&D expenditure: `$16B/yr`
+ * Number of transitive dependencies in your tree: `10k`
+ * Number of transitive dependencies that include `tythe.json`: `2k`
 
-## Commitments
+Your tythe is: `$16B * 0.1 * 2000 / 10000 = $32M/year` or `$2.7M/month` or about `1.3k/mo/dep`
 
-We envision an array of badges that users of open source projects can display on their websites declaring their commitment to open source tythes.
 
-A company would display a badge that advertises their promise to support 100% (or more likely 95% or 90%) of their required tythe.
+# Dividing the Tythe
 
-Given the large number of open source developers inside almost all companies, we expect voluntary compliance with these public commitments to be quite high.
+How a company divides its tythe amongst its dependencies is entirely up to that company. The only requirement from the covenant is the total amount of the tythe, not to where it goes.
 
-# Getting Started
+By default `go-tythe` will simply divide the tythe evenly amongst all tythed dependencies. However, there will be a user interface to customize the allocations.
 
-There's nothing here now, but I am imaging a variety of software to make calculating, paying, and otherwise working with tythes easier:
+# Status
 
-1. The very first thing could just be a Patreon integration - users of a software project can click a button on Github to pay via Patreon.
-2. A command-line project to find all tythes in a directory and generate a report.
-3. A way to do (2) but also make the correct payments.
-4. A way to do (2) but show a visual report of where money is going.
+Right now this document is all there is. It’s in the collecting-feedback stage.
+
+# FAQ
+
+### Why “tythe” not “tithe”?
+It’s the archaic spelling. I just like it better.
+
+### Why is the tythe based on R&D, not revenue?
+ * Revenue scales too fast in most companies, it ends up being impractical at either the high or low end.
+ * R&D scales sub-linear with revenue, making it a nice fit for this use case.
+ * Lots of companies have no revenue, but are funded. They should still contribute.
+ * R&D in software companies is almost entirely engineers. This makes it easy to compare to the value that open source provides.
+ * R&D is already reported publicly in many companies, leading to transparency.
