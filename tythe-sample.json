@@ -1,0 +1,12 @@
+// TODO:
+// It seems like it might be useful to support
+// multiple addresses here with allocations.
+
+{
+    "destination": {
+        // Other potential types in the future:
+        // wire, ach, cryptocurrency
+        "type": "paypal",
+        "address": "maintainer@project.org"
+    }
+}
