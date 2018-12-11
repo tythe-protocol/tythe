@@ -18,7 +18,7 @@ It’s time to evolve. We need to direct resources to maintaining our digital co
 A company's tythe is based on its annualized R&D expenditure. It will never be greater than 1% of this value, and usually significantly smaller.
 
 ```
-tythe = R&D * 0.1 * tythed_deps / total_deps
+tythe = R&D * 0.01 * tythed_deps / total_deps
 
 R&D:         annualized R&D expenditure
 total_deps:  count of transitive dependencies
@@ -31,7 +31,7 @@ tythed_deps: count of total_deps that contain a tythe.json
  * Number of transitive dependencies in your tree: `500`
  * Number of transitive dependencies that include `tythe.json`: `150`
  
-Your tythe is: `$2M * 0.1 * 150 / 500 = $6000/year` or `$500/month` or `$3.33/mo/dep`
+Your tythe is: `$2M * 0.01 * 150 / 500 = $6000/year` or `$500/month` or `$3.33/mo/dep`
 
 ## Example 2
 
@@ -39,7 +39,7 @@ Your tythe is: `$2M * 0.1 * 150 / 500 = $6000/year` or `$500/month` or `$3.33/mo
  * Number of transitive dependencies in your tree: `10k`
  * Number of transitive dependencies that include `tythe.json`: `2k`
 
-Your tythe is: `$16B * 0.1 * 2000 / 10000 = $32M/year` or `$2.7M/month` or about `$1.3k/mo/dep`
+Your tythe is: `$16B * 0.01 * 2000 / 10000 = $32M/year` or `$2.7M/month` or about `$1.3k/mo/dep`
 
 
 # Dividing the Tythe
