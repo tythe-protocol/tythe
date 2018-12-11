@@ -9,7 +9,7 @@ It’s time to evolve. We need to direct resources to maintaining our digital co
 # How
 
 1. Open source maintainers add [tythe.json](./tythe-sample.json) to their repositories. This declares how to send them money in a machine-readable way.
-2. Companies take [The Tythe Covenant](./covenant.md) by posting it to social media, or on their website. The Covenant is a public promise to contribute [up to 1%](#calculating-your-tythe) of R&D monthly to open source maintenance. Enforcement of the convenant is entirely social.
+2. Companies take [The Tythe Covenant](./covenant.md) by posting it to social media, or on their website. The Covenant is a public promise to contribute [up to 1%](#how-tythes-are-calculated) of R&D monthly to open source maintenance. Enforcement of the convenant is entirely social.
 3. Companies use [go-tythe](#status) (or whatever other tool they want) to automatically distribute and send money to the maintainers of their dependencies every month.
 4. 🙌
 
