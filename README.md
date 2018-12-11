@@ -9,20 +9,20 @@ It’s time to evolve. We need to direct resources to maintaining our digital co
 # How
 
 1. Open source maintainers add [tythe.json](./tythe-sample.json) to their repositories. This declares how to send them money in a machine-readable way.
-2. Companies take [The Tythe Covenant](./covenant.html) by posting it to social media, or on their website. The Covenant is a public promise to contribute [up to 1%](#calculating-your-tythe) of R&D monthly to open source maintenance. Enforcement of the convenant is entirely social.
-3. Companies use [go-tythe](#tools) (or whatever other tool they want) to automatically distribute and send money to the maintainers of their dependencies every month.
+2. Companies take [The Tythe Covenant](./covenant.md) by posting it to social media, or on their website. The Covenant is a public promise to contribute [up to 1%](#calculating-your-tythe) of R&D monthly to open source maintenance. Enforcement of the convenant is entirely social.
+3. Companies use [go-tythe](#status) (or whatever other tool they want) to automatically distribute and send money to the maintainers of their dependencies every month.
 4. 🙌
 
-# Calculating your Tythe
+# How Tythes are Calculated
 
-A company's tythe is based on its R&D expenditure. It will never be greater than 1% of this value, and usually significantly smaller.
+A company's tythe is based on its annualized R&D expenditure. It will never be greater than 1% of this value, and usually significantly smaller.
 
 ```
 tythe = R&D * 0.1 * tythed_deps / total_deps
 
-R&D:         your current R&D expenditure
-total_deps:  count of your transitive dependencies
-tythed_deps: subset of total_deps that contain a tythe.json
+R&D:         annualized R&D expenditure
+total_deps:  count of transitive dependencies
+tythed_deps: count of total_deps that contain a tythe.json
 ```
 
 ## Example 1
@@ -39,7 +39,7 @@ Your tythe is: `$2M * 0.1 * 150 / 500 = $6000/year` or `$500/month`
  * Number of transitive dependencies in your tree: `10k`
  * Number of transitive dependencies that include `tythe.json`: `2k`
 
-Your tythe is: `$16B * 0.1 * 2000 / 10000 = $32M/year` or `$2.7M/month` or about `1.3k/mo/dep`
+Your tythe is: `$16B * 0.1 * 2000 / 10000 = $32M/year` or `$2.7M/month` or about `$1.3k/mo/dep`
 
 
 # Dividing the Tythe
@@ -52,12 +52,14 @@ By default `go-tythe` will simply divide the tythe evenly amongst all tythed dep
 
 Right now this document is all there is. It’s in the collecting-feedback stage.
 
+Given interest, I eventually imagine a series of tools that plug into continuous integration that companies can use to calculate and pay tythes automatically.
+
 # FAQ
 
 ### Why “tythe” not “tithe”?
 It’s the archaic spelling. I just like it better.
 
-### Why is the tythe based on R&D, not revenue?
+### Why is the tythe based on R&D, not revenue or profit?
  * Revenue scales too fast in most companies, it ends up being impractical at either the high or low end.
  * R&D scales sub-linear with revenue, making it a nice fit for this use case.
  * Lots of companies have no revenue, but are funded. They should still contribute.
