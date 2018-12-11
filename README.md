@@ -31,7 +31,7 @@ tythed_deps: count of total_deps that contain a tythe.json
  * Number of transitive dependencies in your tree: `500`
  * Number of transitive dependencies that include `tythe.json`: `150`
  
-Your tythe is: `$2M * 0.1 * 150 / 500 = $6000/year` or `$500/month`
+Your tythe is: `$2M * 0.1 * 150 / 500 = $6000/year` or `$500/month` or `$40/yr/dep`
 
 ## Example 2
 
