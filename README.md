@@ -1,21 +1,26 @@
+# Tythe
+
+1% of R&D for the open source projects you depend on.
+
+# What
+
+Tythe automatically directs 1% of your company's R&D budget to the maintenance of the open source projects you depend on:
+
+1. Maintainers add the [tythe.json](./tythe-sample.json) file to their repositories. This declares how to send them money in a machine-readable way.
+2. Companies install and run Tythe on their own servers.
+3. Tythe monitors the company's dependency tree and automatically pays the maintainers every month. By default the tythe is split evenly amongst all dependencies, but users can adjust the share if desired.
+
 # Why
 
-Open Source started out as a fringe movement. But over several decades, it has grown into absolutely critical shared infrastructure. To a close approximation, *all* companies are now heavily dependent upon open source. We won!
+Open Source started out as a fringe movement, but over several decades, it has grown into absolutely critical shared infrastructure. To a close approximation, *all* companies are now heavily dependent upon open source. We won!
 
-However. Open source is also basically unmaintained. The people most capable of doing the maintenance are typically doing so at night and on weekends, while they work something unrelated during the day to make a living.
+However. Open source is also basically unmaintained. The people most capable of doing the maintenance are typically doing so at night and on weekends, while they work on something unrelated during the day to make a living.
 
 It’s time to evolve. We need to direct resources to maintaining our digital commons and allow the right people to do that full-time.
 
-# How
+# How the Tythe is Calculated
 
-1. Open source maintainers add [tythe.json](./tythe-sample.json) to their repositories. This declares how to send them money in a machine-readable way.
-2. Companies take [The Tythe Covenant](./covenant.md) by posting it to social media, or on their website. The Covenant is a public promise to contribute [up to 1%](#calculating-your-tythe) of R&D monthly to open source maintenance. Enforcement of the convenant is entirely social.
-3. Companies use [go-tythe](#status) (or whatever other tool they want) to automatically distribute and send money to the maintainers of their dependencies every month.
-4. 🙌
-
-# How Tythes are Calculated
-
-A company's tythe is based on its annualized R&D expenditure. It will never be greater than 1% of this value, and usually significantly smaller.
+The expected tythe is based on a company's annualized R&D expenditure. It will never be greater than 1% of this value, and usually significantly smaller.
 
 ```
 tythe = R&D * 0.1 * tythed_deps / total_deps
@@ -41,12 +46,9 @@ Your tythe is: `$2M * 0.1 * 150 / 500 = $6000/year` or `$500/month`
 
 Your tythe is: `$16B * 0.1 * 2000 / 10000 = $32M/year` or `$2.7M/month` or about `$1.3k/mo/dep`
 
+# Make the Tythe Covenant
 
-# Dividing the Tythe
-
-How a company divides its tythe amongst its dependencies is entirely up to that company. The only requirement from the covenant is the total amount of the tythe, not to where it goes.
-
-By default `go-tythe` will simply divide the tythe evenly amongst all tythed dependencies. However, there will be a user interface to customize the allocations.
+Do you run a company that uses open source? You should make the Tythe Covenant, documenting your commitment to support open source maintenance.
 
 # Status
 
