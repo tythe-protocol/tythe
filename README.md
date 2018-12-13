@@ -1,26 +1,28 @@
 # Tythe
 
-1% of R&D for the open source projects you depend on.
+1% of R&D to Open Source Maintenance
 
 # What
 
-Tythe automatically directs 1% of your company's R&D budget to the maintenance of the open source projects you depend on:
+Tythe automatically directs 1% of your company's R&D budget to the maintenance of the open source projects you depend on.
 
-1. Maintainers add the [tythe.json](./tythe-sample.json) file to their repositories. This declares how to send them money in a machine-readable way.
+# How
+
+1. Maintainers add the [tythe.json](./tythe-sample.json) file to their repositories. This declares that the developer wants to get paid for maintenance, and how users should to do that, in a machine-readable way.
 2. Companies install and run Tythe on their own servers.
 3. Tythe monitors the company's dependency tree and automatically pays the maintainers every month. By default the tythe is split evenly amongst all dependencies, but users can adjust the share if desired.
 
 # Why
 
-Open Source started out as a fringe movement, but over several decades, it has grown into absolutely critical shared infrastructure. To a close approximation, *all* companies are now heavily dependent upon open source. We won!
+Open Source started out as a fringe movement, but over several decades, it has grown into critical shared infrastructure. To a close approximation, *all* companies are now heavily dependent upon open source. We won!
 
-However. Open source is also basically unmaintained. The people most capable of doing the maintenance are typically doing so at night and on weekends, while they work on something unrelated during the day to make a living.
+However. Open source is also largely unmaintained. The people most capable of doing the maintenance are usually doing so at night and on weekends, while they work on something unrelated during the day to pay the bills.
 
-It’s time to evolve. We need to direct resources to maintaining our digital commons and allow the right people to do that full-time.
+It’s time to evolve. We need to direct resources to the maintenance of our digital commons, and allow the right people to do that full-time. Tythe is one easy way to do this.
 
-# How the Tythe is Calculated
+# The Tythe Calculation
 
-The expected tythe is based on a company's annualized R&D expenditure. It will never be greater than 1% of this value, and usually significantly smaller.
+A value of a company's tythe is based on its annualized R&D expenditure. It will never be greater than 1% of this value, and usually significantly smaller.
 
 ```
 tythe = R&D * 0.1 * tythed_deps / total_deps
@@ -58,12 +60,15 @@ Given interest, I eventually imagine a series of tools that plug into continuous
 
 # FAQ
 
+### What's with the name?
+A tithe is a donation that many religious organizations ask of their practicioners, paid to support the clergy and other shared infrastructure of the church. It comes from the old english "tenth", because traditionally the tythe is 10% of ones income.
+
 ### Why “tythe” not “tithe”?
 It’s the archaic spelling. I just like it better.
 
 ### Why is the tythe based on R&D, not revenue or profit?
  * Revenue scales too fast in most companies, it ends up being impractical at either the high or low end.
  * R&D scales sub-linear with revenue, making it a nice fit for this use case.
- * Lots of companies have no revenue, but are funded. They should still contribute.
  * R&D in software companies is almost entirely engineers. This makes it easy to compare to the value that open source provides.
+ * Lots of companies have no revenue, but are funded. They should still contribute.
  * R&D is already reported publicly in many companies, leading to transparency.
