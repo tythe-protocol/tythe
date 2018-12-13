@@ -8,6 +8,7 @@ Tythe automatically directs 1% of your company's R&D budget to the maintenance o
 
 # How
 
+<<<<<<< HEAD
 1. Maintainers add the [tythe.json](./tythe-sample.json) file to their repositories. This declares that the developer wants to get paid for maintenance, and how users should to do that, in a machine-readable way.
 2. Companies install and run Tythe on their own servers.
 3. Tythe monitors the company's dependency tree and automatically pays the maintainers every month. By default the tythe is split evenly amongst all dependencies, but users can adjust the share if desired.
@@ -19,13 +20,19 @@ Open Source started out as a fringe movement, but over several decades, it has g
 However. Open source is also largely unmaintained. The people most capable of doing the maintenance are usually doing so at night and on weekends, while they work on something unrelated during the day to pay the bills.
 
 It’s time to evolve. We need to direct resources to the maintenance of our digital commons, and allow the right people to do that full-time. Tythe is one easy way to do this.
+=======
+1. Open source maintainers add [tythe.json](./tythe-sample.json) to their repositories. This declares how to send them money in a machine-readable way.
+2. Companies take [The Tythe Covenant](./covenant.md) by posting it to social media, or on their website. The Covenant is a public promise to contribute [up to 1%](#how-tythes-are-calculated) of R&D monthly to open source maintenance. Enforcement of the convenant is entirely social.
+3. Companies use [go-tythe](#status) (or whatever other tool they want) to automatically distribute and send money to the maintainers of their dependencies every month.
+4. 🙌
+>>>>>>> master
 
 # The Tythe Calculation
 
 A value of a company's tythe is based on its annualized R&D expenditure. It will never be greater than 1% of this value, and usually significantly smaller.
 
 ```
-tythe = R&D * 0.1 * tythed_deps / total_deps
+tythe = R&D * 0.01 * tythed_deps / total_deps
 
 R&D:         annualized R&D expenditure
 total_deps:  count of transitive dependencies
@@ -38,7 +45,7 @@ tythed_deps: count of total_deps that contain a tythe.json
  * Number of transitive dependencies in your tree: `500`
  * Number of transitive dependencies that include `tythe.json`: `150`
  
-Your tythe is: `$2M * 0.1 * 150 / 500 = $6000/year` or `$500/month`
+Your tythe is: `$2M * 0.01 * 150 / 500 = $6000/year` or `$500/month` or `$3.33/mo/dep`
 
 ## Example 2
 
@@ -46,7 +53,7 @@ Your tythe is: `$2M * 0.1 * 150 / 500 = $6000/year` or `$500/month`
  * Number of transitive dependencies in your tree: `10k`
  * Number of transitive dependencies that include `tythe.json`: `2k`
 
-Your tythe is: `$16B * 0.1 * 2000 / 10000 = $32M/year` or `$2.7M/month` or about `$1.3k/mo/dep`
+Your tythe is: `$16B * 0.01 * 2000 / 10000 = $32M/year` or `$2.7M/month` or about `$1.3k/mo/dep`
 
 # Make the Tythe Covenant
 
