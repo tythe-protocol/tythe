@@ -20,7 +20,7 @@ It works like this:
 
 1. Open source maintainers add [`tythe.json`](./tythe-sample.json) to their repositories. This declares that the developer wants to participate, and how they should get paid, in a machine-readable way. It also contains a copy of *The Tythe Covenant* - which describes a minimum level of craftsmanship and responsibility for the library that the developer commits to.
 2. Companies make a public statement committing to the Tythe Protocol (e.g., by posting on social media).
-3. Every month companies calculate their tythe and distribute it amongst their open source dependencies in any way they see fit. All dependencies, transitively, are elibile, including those that are used via source code, object code, or remote interface. Dependencies can be discovered via `tythe.json` using any tool, or alternately by manual specification.
+3. Every month companies calculate their tythe and distribute it amongst their dependencies in any way they see fit. All dependencies, transitively, are elibile, including those that are used via source code, object code, or remote interface. Dependencies can be discovered via `tythe.json` using any tool, or alternately by manual specification.
 4. 🙌
 
 # The Tythe Calculation
