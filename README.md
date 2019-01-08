@@ -1,21 +1,35 @@
-# Why
+# Overview
 
-Open Source started out as a fringe movement. But over several decades, it has grown into absolutely critical shared infrastructure. To a close approximation, *all* companies are now heavily dependent upon open source. We won!
+This document describes a simple, open, transparent, and license-comaptible way to financially support improved maintenance of Open Source software. Discussion and suggestions for improvement are requested.
 
-However. Open source is also basically unmaintained. The people most capable of doing the maintenance are typically doing so at night and on weekends, while they work something unrelated during the day to make a living.
+# Problem
 
-It’s time to evolve. We need to direct resources to maintaining our digital commons and allow the right people to do that full-time.
+Over the past several decades, Open Source has gone from a fringe hippie movement to critical global infrastructure.
 
-# How
+We won! Basically all companies are now heavily dependent on Open Source software. And the spoils are rich — a vast and deep software commons which enable us to build at a previously unimaginable scale and pace.
 
-1. Open source maintainers add [tythe.json](./tythe-sample.json) to their repositories. This declares how to send them money in a machine-readable way.
-2. Companies take [The Tythe Covenant](./covenant.md) by posting it to social media, or on their website. The Covenant is a public promise to contribute [up to 1%](#how-tythes-are-calculated) of R&D monthly to open source maintenance. Enforcement of the convenant is entirely social.
-3. Companies use [go-tythe](#status) (or whatever other tool they want) to automatically distribute and send money to the maintainers of their dependencies every month.
+Unfortunately, this common infrastructure is also chronically under-funded. You can't make a living maintaining popular and widely used open source packages, so developers typically do it in their spare time.
+
+One result has been a steady drip of major security issues. But more importantly, the best work just isn't getting done. The people suited to tending our digital commons are building better ad targeting to pay the bills.
+
+# Proposal
+
+An *Open Source Tythe* is up to 1% of a company's R&D budget, distributed continuously amongst the maintainers of the Open Source projects the company depends on.
+
+All companies that use Open Source are encouraged to participate in the Tythe Protocol.
+
+It works like this:
+
+1. Open source maintainers add [`tythe.json`](./tythe-sample.json) to their repositories. This declares that the developer wants to participate in tythe, and how they should get paid, in a machine-readable way. It also contains a copy of The Tythe Covenant - which describes a minimum level of craftsmanship and responsibility for the library that the developer commits to.
+2. Companies make a public statement committing to the Tythe Protocol (e.g., by posting on social media).
+3. Every month companies calculate their tythe and distribute it amongst their open source dependencies in any way they see fit. All dependencies, transitively, are elibile, including those that are used via source code, object code, or remote interface. Dependencies can be discovered via `tythe.json` using any tool, or alternately by manual specification.
 4. 🙌
 
-# How Tythes are Calculated
+# The Tythe Calculation
 
-A company's tythe is based on its annualized R&D expenditure. It will never be greater than 1% of this value, and usually significantly smaller.
+The amount a company should tythe is based on that company's annualized R&D budget. The tythe approaches 1% of this value as the portion of participating dependencies increases.
+
+Specifically:
 
 ```
 tythe = R&D * 0.01 * tythed_deps / total_deps
@@ -44,15 +58,13 @@ Your tythe is: `$16B * 0.01 * 2000 / 10000 = $32M/year` or `$2.7M/month` or abou
 
 # Dividing the Tythe
 
-How a company divides its tythe amongst its dependencies is entirely up to that company. The only requirement from the covenant is the total amount of the tythe, not to where it goes.
+How a company divides its tythe amongst its dependencies is entirely up to that company. The only requirement from the protocol is the total amount of the tythe, not to where it goes.
 
-By default `go-tythe` will simply divide the tythe evenly amongst all tythed dependencies. However, there will be a user interface to customize the allocations.
+Tools will provide a variety of features and options for dividing the tythe.
 
-# Status
+# Tools
 
-Right now this document is all there is. It’s in the collecting-feedback stage.
-
-Given interest, I eventually imagine a series of tools that plug into continuous integration that companies can use to calculate and pay tythes automatically.
+Currently, nothing exists, but work will begin soon on `go-tythe`, the simplest possible command-line implementation of a client that can distribute payments once.
 
 # FAQ
 
