@@ -4,17 +4,17 @@ This document describes a simple, open, transparent, and license-compatible way 
 
 # How it Works
 
-## 1. Maintainers add [`tythe.json`](./tythe-sample.json) to the root of their projects
+### 1. Maintainers add [`tythe.json`](./tythe-sample.json) to the root of their projects
 
 `tythe.json` declares that the maintainer wants to participate, and how to pay them, in a machine-readable format.
 
 It also contains a copy of _The Covenant_ — a minimum level of craftsmanship and responsibility for the library the maintainer commits to.
 
-## 2. Companies make a public commitment to pay tythes
+### 2. Companies make a public commitment to pay tythes
 
 For example, by posting a link to this page to social media.
 
-## 3. Maintainers get paid 🙌
+### 3. Maintainers get paid 🙌
 
 Companies use any compatible [tool](#tools) to [calculate the tythe](#the-tythe-calculation) and distribute it. Companies can divide the tythe however they like, but tools will typically provide sensible defaults.
 
