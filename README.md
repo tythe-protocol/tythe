@@ -6,9 +6,9 @@ This document describes a simple, open, transparent, and license-compatible way 
 
 ### 1. Maintainers add [`tythe.json`](./tythe-sample.json) to the root of their projects
 
-`tythe.json` declares that the maintainer wants to participate, and how to pay them, in a machine-readable format.
+This declares that the maintainer wants to participate, and how to pay them, in a machine-readable format.
 
-It also contains a copy of _The Covenant_ — a minimum level of craftsmanship and responsibility for the library the maintainer commits to.
+It also contains a copy of _The Covenant_ — a minimum level of craftsmanship and responsibility for the library the maintainer commits to in return for payment.
 
 ### 2. Companies make a public commitment to pay tythes
 
