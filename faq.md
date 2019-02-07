@@ -8,9 +8,7 @@ A tithe is a donation that many religious organizations ask of their practicione
 It’s the archaic spelling. I just like it better.
 
 ### Why 1%?
-There should be some amount that is easy for companies to reason about, and this amount should be a widely-understood community expectation.
-
-10% seems unreasonably high, and 1% seems like enough. Companies are welcome to use a larger percentage if they prefer, and we anticipate some social mechanisms that could encourage this.
+Just as with religious tithes, it's important that there is some widely understood social expectation about the scale of donation. 10% seems unreasonably high for something voluntary, and 1% seems like enough. Companies are welcome to use a larger percentage if they prefer, and we anticipate some social mechanisms that could encourage this.
 
 ### Why is the tythe based on R&D, not revenue or profit?
 
@@ -21,7 +19,7 @@ There should be some amount that is easy for companies to reason about, and this
 
 ### What prevents companies from cheating?
 
-Their public commitment. Companies are collections of people, many of whom are software developers who would want to support this system. This combined with tools that make tythe status visible internally will ensure quite high compliance among companies that make a public commitment.
+Their public commitment. Companies are collections of people, many of whom are software developers who would want to support this system. This combined with tools that make tythe status visible will ensure quite high compliance among companies that make a public commitment.
 
 ### In what sense is this a protocol?
 
