@@ -32,3 +32,7 @@ Their public commitment. Companies are collections of people, many of whom are s
 > ...
 
 -- https://www.merriam-webster.com/dictionary/protocol
+
+### What about open source projects that are composed of more than one person?
+
+Tythe is completely compatible with this. For simple cases, tythe could just support [multiple destination addresses](#5). Bigger projects could create something like an [Open Collective](https://opencollective.com/) and have the collective own a single input address.
