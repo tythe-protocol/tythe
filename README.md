@@ -1,6 +1,6 @@
 # About
 
-This is a simple CLI client implementing the [tythe protocol](https://github.com/aboodman/tythe). It relies on Coinbase for transfer (and eventually, for credit card processing).
+This is a simple CLI client implementing the [Tythe Protocol](https://github.com/aboodman/tythe). It relies on Coinbase for transfer (and eventually, for credit card processing).
 
 # Install
 
@@ -21,5 +21,9 @@ go get github.com/aboodman/go-tythe/...
 # Run
 
 ```
-go-tythe https://github.com/aboodman/dom-drag 0.25
+go-tythe <repo-url> 5
 ```
+
+# For Open Source Developers
+
+Want to participate in Tythe? Add an appropriate [`tythe.json`](https://github.com/aboodman/tythe/blob/master/tythe-sample.json) to your repo and tweet the URL with `#tythe-protocol` and I'll send you some money.
