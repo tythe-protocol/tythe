@@ -1,11 +1,12 @@
 // TODO:
-// * It seems like it might be useful to support
-//   multiple addresses here with allocations.
+// * Redirects - for projects split amongst many repos
+// * Multiple addresses here with shares.
 // * Other potential types in the future:
-//   wire, ach, cryptocurrency
+//   - other cryptocurrencies
+//   - paypal (via payout feature)
 {
     "destination": {
-        "type": "paypal",
-        "address": "maintainer@project.org"
+        "type": "USDC",
+        "address": "0x0123456789ABCDEF0123456789ABCDEF01234567"
     }
 }
