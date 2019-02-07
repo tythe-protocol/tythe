@@ -10,7 +10,7 @@ It’s the archaic spelling. I just like it better.
 ### Why 1%?
 There should be some amount that is easy for companies to reason about, and this amount should be a widely-understood community expectation.
 
-10% seems unreasonable for this amount, and 1% seems like enough to achieve the protocol's goals. Companies are welcome to use a larger percentage if they prefer.
+10% seems unreasonably high, and 1% seems like enough. Companies are welcome to use a larger percentage if they prefer, and we anticipate some social mechanisms that could encourage this.
 
 ### Why is the tythe based on R&D, not revenue or profit?
 
