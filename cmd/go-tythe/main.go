@@ -6,55 +6,100 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/aboodman/go-tythe/dep"
 	"github.com/aboodman/go-tythe/packageconfig"
 	"github.com/attic-labs/noms/go/d"
 	gdax "github.com/preichenberger/go-gdax"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
+type command struct {
+	cmd     *kingpin.CmdClause
+	handler func()
+}
+
 func main() {
 	app := kingpin.New("go-tythe", "A command-line tythe client.")
 
-	pay := app.Command("pay", "Pay a single package")
-	url := pay.Arg("package-url", "URL of the package to pay.").Required().URL()
-	amount := pay.Arg("amount", "Amount to send to the package (in USD).").Required().Float()
+	commands := []command{
+		list(app),
+		pay(app),
+	}
 
-	key := getEnv("TYTHE_COINBASE_API_KEY")
-	secret := getEnv("TYTHE_COINBASE_API_SECRET")
-	passphrase := getEnv("TYTHE_COINBASE_API_PASSPHRASE")
+	selected := kingpin.MustParse(app.Parse(os.Args[1:]))
+	for _, c := range commands {
+		if selected == c.cmd.FullCommand() {
+			c.handler()
+			break
+		}
+	}
+}
 
-	kingpin.MustParse(app.Parse(os.Args[1:]))
+func list(app *kingpin.Application) (c command) {
+	c.cmd = app.Command("list", "List transitive dependencies of a package")
+	url := c.cmd.Arg("package-url", "URL of the package to list.").Required().URL()
 
-	config, err := packageconfig.Read(*url)
-	d.CheckErrorNoUsage(err)
+	c.handler = func() {
+		deps, err := dep.List(*url)
+		d.CheckErrorNoUsage(err)
 
-	fmt.Printf("Found tythe.json in %s:\n", (*url).String())
-	enc := json.NewEncoder(os.Stdout)
-	enc.SetIndent("", "  ")
-	err = enc.Encode(config)
-	d.CheckError(err)
-	fmt.Printf("Really send $%f (y/n)?\n", *amount)
+		for _, d := range deps {
+			fmt.Println(d)
+		}
+	}
 
-	reader := bufio.NewReader(os.Stdin)
-	line, err := reader.ReadString('\n')
-	d.CheckErrorNoUsage(err)
+	return c
+}
 
-	if line != "y\n" {
+func pay(app *kingpin.Application) (c command) {
+	c.cmd = app.Command("pay", "Pay a single package")
+	url := c.cmd.Arg("package-url", "URL of the package to pay.").Required().URL()
+	amount := c.cmd.Arg("amount", "Amount to send to the package (in USD).").Required().Float()
+
+	c.handler = func() {
+		key := getEnv("TYTHE_COINBASE_API_KEY")
+		secret := getEnv("TYTHE_COINBASE_API_SECRET")
+		passphrase := getEnv("TYTHE_COINBASE_API_PASSPHRASE")
+
+		config, err := packageconfig.Read(*url)
+		d.CheckErrorNoUsage(err)
+		if config == nil {
+			fmt.Printf("no tythe.json for package: %s", (*url).String())
+			return
+		}
+
+		fmt.Printf("Found tythe.json in %s:\n", (*url).String())
+		enc := json.NewEncoder(os.Stdout)
+		enc.SetIndent("", "  ")
+		err = enc.Encode(config)
+		d.CheckError(err)
+		fmt.Printf("Really send $%f (y/n)?\n", *amount)
+
+		reader := bufio.NewReader(os.Stdin)
+		line, err := reader.ReadString('\n')
+		d.CheckErrorNoUsage(err)
+
+		if line != "y\n" {
+			return
+		}
+
+		client := gdax.NewClient(secret, key, passphrase)
+		params := map[string]interface{}{
+			"amount":         *amount,
+			"currency":       config.Destination.Type,
+			"crypto_address": config.Destination.Address,
+		}
+
+		var res map[string]interface{}
+		_, err = client.Request("POST", "/withdrawals/crypto", params, &res)
+		d.PanicIfError(err)
+
+		fmt.Printf("All done! Coinbase transaction ID: %s\n", res["id"])
+
 		return
 	}
 
-	client := gdax.NewClient(secret, key, passphrase)
-	params := map[string]interface{}{
-		"amount":         *amount,
-		"currency":       config.Destination.Type,
-		"crypto_address": config.Destination.Address,
-	}
-
-	var res map[string]interface{}
-	_, err = client.Request("POST", "/withdrawals/crypto", params, &res)
-	d.PanicIfError(err)
-
-	fmt.Printf("All done! Coinbase transaction ID: %s\n", res["id"])
+	return
 }
 
 func getEnv(s string) string {
