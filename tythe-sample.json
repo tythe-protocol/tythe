@@ -1,16 +1,11 @@
-// TODO:
-// * Redirects - for projects split amongst many repos
-// * Multiple addresses here with shares.
-// * Other potential types in the future:
-//   - other cryptocurrencies
-//   - paypal (via payout feature)
-// * Suggested weights for dependencies -- if a project
-//   is very important to my project's functioning, I
-//   could suggest a weight which users might figure into
-//   calculating shares of the tythe.
+// Hello!
+//
+// This project participates in The Tythe Protocol to fund its maintenance.
+// Learn more at http://github.com/aboodman/tythe.
 {
     "destination": {
         "type": "USDC",
-        "address": "0x0123456789ABCDEF0123456789ABCDEF01234567"
+        // Your USDC wallet address goes here. Create one at coinbase.com, circle.com, or other places.
+        "address": "0x<your-USDC-wallet-address-here>"
     }
 }
