@@ -4,7 +4,7 @@ The Tythe Protocol is a simple, open, and transparent way for companies to finan
 
 # How it Works
 
-### 1. Maintainers add [`tythe.json`](./tythe-sample.json) to the root of their projects
+### 1. Maintainers add a [`.tythe`](./.tythe) file to the root of their projects
 
 This declares that the maintainer wants to participate, and how to pay them, in a machine-readable format.
 
