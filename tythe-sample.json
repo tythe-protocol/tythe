@@ -4,6 +4,10 @@
 // * Other potential types in the future:
 //   - other cryptocurrencies
 //   - paypal (via payout feature)
+// * Suggested weights for dependencies -- if a project
+//   is very important to my project's functioning, I
+//   could suggest a weight which users might figure into
+//   calculating shares of the tythe.
 {
     "destination": {
         "type": "USDC",
