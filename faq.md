@@ -22,3 +22,13 @@ There should be some amount that is easy for companies to reason about, and this
 ### What prevents companies from cheating?
 
 Their public commitment. Companies are collections of people, many of whom are software developers who would want to support this system. This combined with tools that make tythe status visible internally will ensure quite high compliance among companies that make a public commitment.
+
+### In what sense is this a protocol?
+
+> **protocol** (noun):  
+> ...  
+> **3a:**: a code prescribing strict adherence to correct etiquette and precedence (as in diplomatic exchange and in the military services)  
+> e.g., *a breach of protocol*  
+> ...
+
+-- https://www.merriam-webster.com/dictionary/protocol
