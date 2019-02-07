@@ -51,7 +51,7 @@ Your tythe is: `$16B * 0.01 * 2000 / 10000 = $32M/year` or `$2.7M/month` or abou
 
 # Tools
 
-Currently, nothing exists, but work will begin soon on `go-tythe`, the simplest possible command-line implementation of a client that can distribute payments once. It is hoped that a wide variety of interoperating tools will exist.
+* [`go-tythe`](https://github.com/aboodman/go-tythe): The simplest possible CLI client.
 
 # More
 

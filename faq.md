@@ -10,7 +10,7 @@ It’s the archaic spelling. I just like it better.
 ### Why 1%?
 There should be some amount that is easy for companies to reason about, and this amount should be a widely-understood community expectation.
 
-10% seems unreasonable for this amount, and 1% seems like enough to achieve the protocol's goals. Companies are welcome to use a larger percentage if they prefer.
+10% seems unreasonably high, and 1% seems like enough. Companies are welcome to use a larger percentage if they prefer, and we anticipate some social mechanisms that could encourage this.
 
 ### Why is the tythe based on R&D, not revenue or profit?
 
@@ -22,3 +22,17 @@ There should be some amount that is easy for companies to reason about, and this
 ### What prevents companies from cheating?
 
 Their public commitment. Companies are collections of people, many of whom are software developers who would want to support this system. This combined with tools that make tythe status visible internally will ensure quite high compliance among companies that make a public commitment.
+
+### In what sense is this a protocol?
+
+> **protocol** (noun):  
+> ...  
+> **3a:**: a code prescribing strict adherence to correct etiquette and precedence (as in diplomatic exchange and in the military services)  
+> e.g., *a breach of protocol*  
+> ...
+
+-- https://www.merriam-webster.com/dictionary/protocol
+
+### What about open source projects that are composed of more than one person?
+
+Tythe is completely compatible with this. For simple cases, tythe could just support [multiple destination addresses](#5). Bigger projects could create something like an [Open Collective](https://opencollective.com/) and have the collective own a single input address.
