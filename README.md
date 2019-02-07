@@ -1,6 +1,6 @@
 # Overview
 
-The Tythe Protocol is a simple, open, transparent, and license-compatible way to financially support the maintenance of Open Source Software.
+The Tythe Protocol is a simple, open, and transparent way for companies to financially support the maintenance of the Open Source Software they rely on.
 
 # How it Works
 
@@ -14,7 +14,7 @@ For example, by posting a link to this page to social media.
 
 ### 3. Maintainers get paid
 
-Companies use any compatible [tool](#tools) to [calculate the tythe](#the-tythe-calculation) and distribute it. Companies can divide the tythe however they like, but tools will typically provide sensible defaults.
+Companies use any [compatible tool](#tools) to continously monitor their open source dependencies, [calculate the tythe](#the-tythe-calculation) and distribute it. Companies can divide the tythe however they like, but tools will typically provide sensible defaults.
 
 # The Tythe Calculation
 
