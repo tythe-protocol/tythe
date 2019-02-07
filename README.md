@@ -49,7 +49,7 @@ Your tythe is: `$16B * 0.01 * 2000 / 10000 = $32M/year` or `$2.7M/month` or abou
 
 # Tools
 
-* [`go-tythe`](https://github.com/aboodman/go-tythe): The simplest possible CLI client.
+* [`go-tythe`](https://github.com/tythe-protocol/go-tythe): The simplest possible CLI client.
 
 # More
 
