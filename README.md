@@ -1,6 +1,6 @@
 # Overview
 
-This document describes a simple, open, transparent, and license-compatible way to financially support the maintenance of Open Source software. Discussion and suggestions for improvement are requested.
+The Tythe Protocol is a simple, open, transparent, and license-compatible way to financially support the maintenance of Open Source Software.
 
 # How it Works
 
@@ -8,13 +8,11 @@ This document describes a simple, open, transparent, and license-compatible way 
 
 This declares that the maintainer wants to participate, and how to pay them, in a machine-readable format.
 
-It also contains a copy of _The Covenant_ — a minimum level of craftsmanship and responsibility for the library the maintainer commits to in return for payment.
-
 ### 2. Companies make a public commitment to pay tythes
 
 For example, by posting a link to this page to social media.
 
-### 3. Maintainers get paid 🙌
+### 3. Maintainers get paid
 
 Companies use any compatible [tool](#tools) to [calculate the tythe](#the-tythe-calculation) and distribute it. Companies can divide the tythe however they like, but tools will typically provide sensible defaults.
 
