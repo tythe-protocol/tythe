@@ -1,7 +1,7 @@
 // Hello!
 //
 // This project participates in The Tythe Protocol to fund its maintenance.
-// Learn more at http://github.com/tythe-protocol/tythe.
+// Learn more at: http://github.com/tythe-protocol/tythe
 {
     "destination": {
         "type": "USDC",
