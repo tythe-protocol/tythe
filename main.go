@@ -8,13 +8,12 @@ import (
 	"os"
 	"regexp"
 
-	"gopkg.in/src-d/go-git.v4/storage/memory"
-
 	"github.com/attic-labs/noms/go/d"
 	"github.com/pkg/errors"
 	gdax "github.com/preichenberger/go-gdax"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 	git "gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/storage/memory"
 )
 
 var (
@@ -66,21 +65,25 @@ func main() {
 	fmt.Printf("All done! Coinbase transaction ID: %s\n", res["id"])
 }
 
-type DestinationType string
+// PaymentType is a mechanism that go-tythe can use to move money between parties.
+type PaymentType string
 
 const (
-	USDC DestinationType = "USDC"
+	// USDC represents the USDC stablecoin backed by Coinbase and Circle.
+	USDC PaymentType = "USDC"
 )
 
-type Config struct {
+// PackageConfig describes the json metadata developers add to their package to
+// opt-in to receiving tythes.
+type PackageConfig struct {
 	Destination struct {
-		Type    DestinationType `json:"type"`
-		Address string          `json:"address"`
+		Type    PaymentType `json:"type"`
+		Address string      `json:"address"`
 	} `json:"destination"`
 }
 
-func readConfig(url *url.URL) (Config, error) {
-	var c Config
+func readConfig(url *url.URL) (PackageConfig, error) {
+	var c PackageConfig
 
 	r, err := git.Clone(memory.NewStorage(), nil, &git.CloneOptions{
 		URL:   url.String(),
@@ -107,15 +110,15 @@ func readConfig(url *url.URL) (Config, error) {
 	}
 
 	if err != nil {
-		return Config{}, errors.Wrapf(err, "Could not get config for repository: %s", url)
+		return PackageConfig{}, errors.Wrapf(err, "Could not get config for repository: %s", url)
 	}
 
 	if c.Destination.Type != USDC {
-		return c, fmt.Errorf("invalid tythe.json - destination type: \"%s\" not supported", c.Destination.Type)
+		return PackageConfig{}, fmt.Errorf("invalid tythe.json - destination type: \"%s\" not supported", c.Destination.Type)
 	}
 
 	if !usdcAddressPattern.MatchString(c.Destination.Address) {
-		return Config{}, fmt.Errorf("invalid destination address in tythe.json: \"%s\"", c.Destination.Address)
+		return PackageConfig{}, fmt.Errorf("invalid destination address in tythe.json: \"%s\"", c.Destination.Address)
 	}
 
 	return c, nil
