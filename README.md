@@ -21,8 +21,13 @@ go get github.com/aboodman/go-tythe/...
 # Run
 
 ```
+# Send $5.00 to the maintainer of <repo-url>
 go-tythe <repo-url> 5
 ```
+
+# Status
+
+Not very much is implemented yet. See [notes](https://github.com/aboodman/go-tythe/blob/master/notes.md) for the plan from here.
 
 # For Open Source Developers
 
