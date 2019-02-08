@@ -1,4 +1,4 @@
-package packageconfig
+package pcfg
 
 import (
 	"encoding/json"

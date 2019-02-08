@@ -9,7 +9,7 @@ import (
 	"github.com/attic-labs/noms/go/d"
 	gdax "github.com/preichenberger/go-gdax"
 	"github.com/tythe-protocol/go-tythe/dep"
-	"github.com/tythe-protocol/go-tythe/packageconfig"
+	"github.com/tythe-protocol/go-tythe/pcfg"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -61,7 +61,7 @@ func pay(app *kingpin.Application) (c command) {
 		secret := getEnv("TYTHE_COINBASE_API_SECRET")
 		passphrase := getEnv("TYTHE_COINBASE_API_PASSPHRASE")
 
-		config, err := packageconfig.Read(*url)
+		config, err := pcfg.Read(*url)
 		d.CheckErrorNoUsage(err)
 		if config == nil {
 			fmt.Printf("no tythe.json for package: %s", (*url).String())
