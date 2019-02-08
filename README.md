@@ -9,7 +9,7 @@ This is a simple CLI client implementing the [Tythe Protocol](https://github.com
 ```
 git clone https://github.com/tythe-protocol/go-tythe
 cd go-tythe
-go build ./cmd/go-tythe
+GO111MODULE=on go build ./cmd/go-tythe
 ```
 
 # Setup
