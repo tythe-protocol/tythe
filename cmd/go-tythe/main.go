@@ -24,6 +24,7 @@ func main() {
 	commands := []command{
 		list(app),
 		pay(app),
+		send(app),
 	}
 
 	selected := kingpin.MustParse(app.Parse(os.Args[1:]))
@@ -57,10 +58,6 @@ func pay(app *kingpin.Application) (c command) {
 	amount := c.cmd.Arg("amount", "Amount to send to the package (in USD).").Required().Float()
 
 	c.handler = func() {
-		key := getEnv("TYTHE_COINBASE_API_KEY")
-		secret := getEnv("TYTHE_COINBASE_API_SECRET")
-		passphrase := getEnv("TYTHE_COINBASE_API_PASSPHRASE")
-
 		config, err := pcfg.Read(*url)
 		d.CheckErrorNoUsage(err)
 		if config == nil {
@@ -73,33 +70,59 @@ func pay(app *kingpin.Application) (c command) {
 		enc.SetIndent("", "  ")
 		err = enc.Encode(config)
 		d.CheckError(err)
-		fmt.Printf("Really send $%f (y/n)?\n", *amount)
 
-		reader := bufio.NewReader(os.Stdin)
-		line, err := reader.ReadString('\n')
-		d.CheckErrorNoUsage(err)
-
-		if line != "y\n" {
-			return
-		}
-
-		client := gdax.NewClient(secret, key, passphrase)
-		params := map[string]interface{}{
-			"amount":         *amount,
-			"currency":       config.Destination.Type,
-			"crypto_address": config.Destination.Address,
-		}
-
-		var res map[string]interface{}
-		_, err = client.Request("POST", "/withdrawals/crypto", params, &res)
-		d.PanicIfError(err)
-
-		fmt.Printf("All done! Coinbase transaction ID: %s\n", res["id"])
-
-		return
+		sendImpl(*amount, config.Destination.Address)
 	}
 
 	return
+}
+
+func send(app *kingpin.Application) (c command) {
+	c.cmd = app.Command("send", "Sends USDC to the specified address (for testing/development)")
+	address := c.cmd.Arg("address", "USDC address to send to.").Required().String()
+	amount := c.cmd.Arg("amount", "Amount to send (in USD).").Required().Float()
+
+	c.handler = func() {
+		if !pcfg.ValidUSDCAddress(*address) {
+			fmt.Fprintln(os.Stderr, "Invalid USDC address")
+			// TODO: refactor exit handling
+			os.Exit(1)
+			return
+		}
+
+		sendImpl(*amount, *address)
+	}
+
+	return
+}
+
+func sendImpl(amt float64, addr string) {
+	key := getEnv("TYTHE_COINBASE_API_KEY")
+	secret := getEnv("TYTHE_COINBASE_API_SECRET")
+	passphrase := getEnv("TYTHE_COINBASE_API_PASSPHRASE")
+
+	fmt.Printf("Really send $%f (y/n)?\n", amt)
+
+	reader := bufio.NewReader(os.Stdin)
+	line, err := reader.ReadString('\n')
+	d.CheckErrorNoUsage(err)
+
+	if line != "y\n" {
+		return
+	}
+
+	client := gdax.NewClient(secret, key, passphrase)
+	params := map[string]interface{}{
+		"amount":         amt,
+		"currency":       pcfg.USDC,
+		"crypto_address": addr,
+	}
+
+	var res map[string]interface{}
+	_, err = client.Request("POST", "/withdrawals/crypto", params, &res)
+	d.PanicIfError(err)
+
+	fmt.Printf("All done! Coinbase transaction ID: %s\n", res["id"])
 }
 
 func getEnv(s string) string {
