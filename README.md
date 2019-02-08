@@ -26,7 +26,7 @@ GO111MODULE=on go build ./cmd/go-tythe
 
 ```
 # Send $5.00 to the maintainer of <repo-url>
-go-tythe <repo-url> 5
+./go-tythe <repo-url> 5
 ```
 
 # Status
