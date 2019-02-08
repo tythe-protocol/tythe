@@ -4,6 +4,8 @@ go:
 os:
   - linux
   - osx
+env:
+  - GO111MODULE=on
 script:
   - go build ./...
   - go test ./...
