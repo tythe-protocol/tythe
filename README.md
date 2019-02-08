@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/tythe-protocol/go-tythe.svg?branch=master)](https://travis-ci.com/tythe-protocol/go-tythe)
+
 # About
 
 This is a simple CLI client implementing the [Tythe Protocol](https://github.com/aboodman/tythe). It relies on Coinbase for transfer (and eventually, for credit card processing).
