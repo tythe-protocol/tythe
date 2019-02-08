@@ -5,5 +5,5 @@ os:
   - linux
   - osx
 script:
-  - env GO111MODULE=on go build
-  - env GO111MODULE=on go test
+  - go build ./...
+  - go test ./...
