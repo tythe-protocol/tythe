@@ -9,8 +9,8 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/aboodman/go-tythe/git"
 	"github.com/pkg/errors"
+	"github.com/tythe-protocol/go-tythe/git"
 )
 
 // List returns the transitive dependencies of the module at <url>.

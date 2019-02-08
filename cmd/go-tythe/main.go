@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/aboodman/go-tythe/dep"
-	"github.com/aboodman/go-tythe/packageconfig"
 	"github.com/attic-labs/noms/go/d"
 	gdax "github.com/preichenberger/go-gdax"
+	"github.com/tythe-protocol/go-tythe/dep"
+	"github.com/tythe-protocol/go-tythe/packageconfig"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 

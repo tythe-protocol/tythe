@@ -9,8 +9,8 @@ import (
 	"path"
 	"regexp"
 
-	"github.com/aboodman/go-tythe/git"
 	"github.com/pkg/errors"
+	"github.com/tythe-protocol/go-tythe/git"
 )
 
 // PaymentType is a mechanism that go-tythe can use to move money between parties.

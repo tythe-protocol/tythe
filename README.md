@@ -4,10 +4,12 @@
 
 This is a simple CLI client implementing the [Tythe Protocol](https://github.com/aboodman/tythe). It relies on Coinbase for transfer (and eventually, for credit card processing).
 
-# Install
+# Build
 
 ```
-go get github.com/aboodman/go-tythe/...
+git clone https://github.com/tythe-protocol/go-tythe
+cd go-tythe
+go build ./cmd/go-tythe
 ```
 
 # Setup
@@ -29,7 +31,7 @@ go-tythe <repo-url> 5
 
 # Status
 
-Not very much is implemented yet. See [notes](https://github.com/aboodman/go-tythe/blob/master/notes.md) for the plan from here.
+Not very much is implemented yet. See [notes](https://github.com/tythe-protocol/go-tythe/blob/master/notes.md) for the plan from here.
 
 # For Open Source Developers
 
