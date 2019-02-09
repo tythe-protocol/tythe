@@ -1,4 +1,4 @@
-package pconf
+package conf
 
 import (
 	"encoding/json"

@@ -8,8 +8,8 @@ import (
 
 	"github.com/attic-labs/noms/go/d"
 	gdax "github.com/preichenberger/go-gdax"
+	"github.com/tythe-protocol/go-tythe/conf"
 	"github.com/tythe-protocol/go-tythe/dep"
-	"github.com/tythe-protocol/go-tythe/pconf"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -70,7 +70,7 @@ func payOne(app *kingpin.Application) (c command) {
 	amount := c.cmd.Arg("amount", "Amount to send to the package (in USD).").Required().Float()
 
 	c.handler = func() {
-		config, err := pconf.Read(*url)
+		config, err := conf.Read(*url)
 		d.CheckErrorNoUsage(err)
 		if config == nil {
 			fmt.Printf("no tythe.json for package: %s", (*url).String())
@@ -95,7 +95,7 @@ func send(app *kingpin.Application) (c command) {
 	amount := c.cmd.Arg("amount", "Amount to send (in USD).").Required().Float()
 
 	c.handler = func() {
-		if !pconf.ValidUSDCAddress(*address) {
+		if !conf.ValidUSDCAddress(*address) {
 			fmt.Fprintln(os.Stderr, "Invalid USDC address")
 			// TODO: refactor exit handling
 			os.Exit(1)
@@ -126,7 +126,7 @@ func sendImpl(amt float64, addr string) {
 	client := gdax.NewClient(secret, key, passphrase)
 	params := map[string]interface{}{
 		"amount":         amt,
-		"currency":       pconf.USDC,
+		"currency":       conf.USDC,
 		"crypto_address": addr,
 	}
 
