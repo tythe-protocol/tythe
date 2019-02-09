@@ -1,4 +1,4 @@
-package tconf
+package plan
 
 import (
 	"encoding/json"
@@ -8,14 +8,15 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Config is the config data for the go-tythe program.
-type Config struct {
+// Plan describes the set of packages that should be included in the tythe and
+// how the tythe should be distributed amongst them.
+type Plan struct {
 	Roots   []string           `json:"roots"`
 	Weights map[string]float64 `json:"weights"`
 }
 
-// AddRoot adds a root to the dependency graph.
-func (c *Config) AddRoot(r string) {
+// AddRoot adds a root package to the plan.
+func (c *Plan) AddRoot(r string) {
 	for _, ex := range c.Roots {
 		if ex == r {
 			return
@@ -24,8 +25,8 @@ func (c *Config) AddRoot(r string) {
 	c.Roots = append(c.Roots, r)
 }
 
-// RemoveRoot removes a root from the dependency graph.
-func (c *Config) RemoveRoot(r string) {
+// RemoveRoot removes a root package from the plan.
+func (c *Plan) RemoveRoot(r string) {
 	for i, ex := range c.Roots {
 		if ex == r {
 			c.Roots = append(c.Roots[0:i], c.Roots[i+1:]...)
@@ -34,20 +35,24 @@ func (c *Config) RemoveRoot(r string) {
 	}
 }
 
-// SetWeight sets an explicit number of shares for a package in the dependency graph.
-func (c *Config) SetWeight(p string, s float64) {
+// SetWeight sets an explicit number of shares for a package in the plan.
+func (c *Plan) SetWeight(p string, w float64) {
 	if c.Weights == nil {
 		c.Weights = map[string]float64{}
 	}
-	if s < 0.0 {
+	if w < 0.0 {
 		panic("s must be positive")
 	}
-	c.Weights[p] = s
+	if w == 1.0 {
+		delete(c.Weights, p)
+		return
+	}
+	c.Weights[p] = w
 }
 
 // Weight gets the number of shares for a package. If there is no explicit number
 // that has been set for the package, the default is 1.0.
-func (c *Config) Weight(p string) float64 {
+func (c *Plan) Weight(p string) float64 {
 	if w, ok := c.Weights[p]; ok {
 		return w
 	}
@@ -55,32 +60,32 @@ func (c *Config) Weight(p string) float64 {
 }
 
 // Load reads the configuration from a file.
-func Load(path string) (Config, error) {
+func Load(path string) (Plan, error) {
 	w := func(err error) error {
 		return errors.Wrapf(err, "Could not load config from: %s", path)
 	}
 	f, err := os.Open(path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return Config{}, nil
+			return Plan{}, nil
 		}
-		return Config{}, w(err)
+		return Plan{}, w(err)
 	}
-	var c Config
+	var c Plan
 	err = json.NewDecoder(f).Decode(&c)
 	if err != nil {
-		return Config{}, w(err)
+		return Plan{}, w(err)
 	}
 	for p, s := range c.Weights {
 		if s < 0.0 {
-			return Config{}, w(fmt.Errorf("Negative number of shares not allowed for package: %s: %f", p, s))
+			return Plan{}, w(fmt.Errorf("Negative number of shares not allowed for package: %s: %f", p, s))
 		}
 	}
 	return c, nil
 }
 
 // Save writes the configuration to a file.
-func Save(c Config, path string) error {
+func Save(c Plan, path string) error {
 	w := func(err error) error {
 		return errors.Wrapf(err, "Could not save config: %+v to: %s", c, path)
 	}
