@@ -70,9 +70,15 @@ func Read(url *url.URL) (*PackageConfig, error) {
 		return nil, fmt.Errorf("invalid tythe.json - destination type: \"%s\" not supported", c.Destination.Type)
 	}
 
-	if !usdcAddressPattern.MatchString(c.Destination.Address) {
+	if !ValidUSDCAddress(c.Destination.Address) {
 		return nil, fmt.Errorf("invalid destination address in tythe.json: \"%s\"", c.Destination.Address)
 	}
 
 	return &c, nil
+}
+
+// ValidUSDCAddress returns true if an string is a correctly formated USDC address.
+// It doesn't check whether the address actually exists.
+func ValidUSDCAddress(addr string) bool {
+	return usdcAddressPattern.MatchString(addr)
 }
