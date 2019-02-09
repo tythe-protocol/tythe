@@ -22,4 +22,5 @@ todo:
 * finish `go-tythe pay-all` - start is in local branch
   - use idempotency token from coinbase api
 * implement crawling of npm
+* look at shapeshifter to support btc output
 * implement coinbase buy widget
