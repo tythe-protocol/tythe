@@ -22,8 +22,9 @@ func main() {
 	app := kingpin.New("go-tythe", "A command-line tythe client.")
 
 	commands := []command{
-		list(app),
 		pay(app),
+		list(app),
+		payOne(app),
 		send(app),
 	}
 
@@ -34,6 +35,17 @@ func main() {
 			break
 		}
 	}
+}
+
+func pay(app *kingpin.Application) (c command) {
+	c.cmd = app.Command("pay", "Pay tythes for listed packages and their transitive dependencies")
+	_ = c.cmd.Arg("amount", "amount to divide amongst the dependent packages").Required().Float64()
+
+	c.handler = func() {
+		// TODO :)
+	}
+
+	return c
 }
 
 func list(app *kingpin.Application) (c command) {
@@ -52,8 +64,8 @@ func list(app *kingpin.Application) (c command) {
 	return c
 }
 
-func pay(app *kingpin.Application) (c command) {
-	c.cmd = app.Command("pay", "Pay a single package")
+func payOne(app *kingpin.Application) (c command) {
+	c.cmd = app.Command("pay-one", "Pay a single package")
 	url := c.cmd.Arg("package-url", "URL of the package to pay.").Required().URL()
 	amount := c.cmd.Arg("amount", "Amount to send to the package (in USD).").Required().Float()
 
