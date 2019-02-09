@@ -24,7 +24,8 @@ func Clone(url *url.URL, dataPath string) (rootPath string, err error) {
 	}
 
 	if err == nil {
-		// TODO: fetch latest
+		// TODO: sync
+		return fullPath, nil
 	}
 
 	_, err = gogit.PlainClone(fullPath, false, &gogit.CloneOptions{

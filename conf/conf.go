@@ -3,7 +3,6 @@ package conf
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/url"
 	"os"
 	"path"
@@ -35,17 +34,12 @@ type Config struct {
 }
 
 // Read loads the Config of a package if there is one. Returns nil, nil if no config.
-func Read(url *url.URL) (*Config, error) {
+func Read(url *url.URL, cacheDir string) (*Config, error) {
 	w := func(err error) error {
 		return errors.Wrapf(err, "Could not read config for repo: %s:", url.String())
 	}
 
-	dir, err := ioutil.TempDir("", "go-tythe")
-	if err != nil {
-		return nil, w(err)
-	}
-
-	p, err := git.Clone(url, dir)
+	p, err := git.Clone(url, cacheDir)
 	if err != nil {
 		return nil, w(err)
 	}

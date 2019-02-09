@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/user"
 
 	"github.com/attic-labs/noms/go/d"
 	gdax "github.com/preichenberger/go-gdax"
@@ -22,10 +23,10 @@ func main() {
 	app := kingpin.New("go-tythe", "A command-line tythe client.")
 
 	commands := []command{
-		pay(app),
-		list(app),
+		payAll(app),
 		payOne(app),
 		send(app),
+		list(app),
 	}
 
 	selected := kingpin.MustParse(app.Parse(os.Args[1:]))
@@ -37,8 +38,10 @@ func main() {
 	}
 }
 
-func pay(app *kingpin.Application) (c command) {
-	c.cmd = app.Command("pay", "Pay tythes for listed packages and their transitive dependencies")
+func payAll(app *kingpin.Application) (c command) {
+	c.cmd = app.Command("pay-all", "Pay tythes for listed packages and their transitive dependencies")
+
+	_ = cacheDirFlag(c.cmd)
 	_ = c.cmd.Arg("amount", "amount to divide amongst the dependent packages").Required().Float64()
 
 	c.handler = func() {
@@ -66,11 +69,13 @@ func list(app *kingpin.Application) (c command) {
 
 func payOne(app *kingpin.Application) (c command) {
 	c.cmd = app.Command("pay-one", "Pay a single package")
+
+	cacheDir := cacheDirFlag(c.cmd)
 	url := c.cmd.Arg("package-url", "URL of the package to pay.").Required().URL()
 	amount := c.cmd.Arg("amount", "Amount to send to the package (in USD).").Required().Float()
 
 	c.handler = func() {
-		config, err := conf.Read(*url)
+		config, err := conf.Read(*url, *cacheDir)
 		d.CheckErrorNoUsage(err)
 		if config == nil {
 			fmt.Printf("no tythe.json for package: %s", (*url).String())
@@ -144,4 +149,14 @@ func getEnv(s string) string {
 		os.Exit(1)
 	}
 	return v
+}
+
+func cacheDirFlag(cmd *kingpin.CmdClause) *string {
+	u, err := user.Current()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(1)
+	}
+	return cmd.Flag("cache-dir", "Directory to write cached repos to during crawling").
+		Default(fmt.Sprintf("%s/.go-tythe", u.HomeDir)).String()
 }
