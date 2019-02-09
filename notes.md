@@ -24,3 +24,11 @@ go-tythe dep remove
 # shows transitive dep tree
 go-tythe dep list
 ```
+
+todo:
+
+* test `go-tythe list` - created some sample projects, doesn't seem to be working yet
+* finish `go-tythe pay-all` - start is in local branch
+  - use idempotency token from coinbase api
+* implement crawling of npm
+* implement coinbase buy widget
