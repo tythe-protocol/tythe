@@ -15,7 +15,7 @@ GO111MODULE=on go build ./cmd/go-tythe
 # Setup
 
 1. Create an account at [Coinbase Pro](https://pro.coinbase.com) if you don't already have one
-2. [Create an API key](https://support.pro.coinbase.com/customer/en/portal/articles/2945320-how-do-i-create-an-api-key-for-coinbase-pro-)
+2. [Create an API key](https://support.pro.coinbase.com/customer/en/portal/articles/2945320-how-do-i-create-an-api-key-for-coinbase-pro-) (all permissions are required)
 3. Set the environment variables:
   * `TYTHE_COINBASE_API_KEY`
   * `TYTHE_COINBASE_API_SECRET`
