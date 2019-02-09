@@ -1,4 +1,4 @@
-package pcfg
+package pconf
 
 import (
 	"encoding/json"
@@ -25,17 +25,17 @@ var (
 	usdcAddressPattern = regexp.MustCompile("^0x[0-9a-f]{40}$")
 )
 
-// PackageConfig describes the json metadata developers add to their package to
-// opt-in to receiving tythes.
-type PackageConfig struct {
+// Config describes the json metadata developers add to their package to opt-in
+// to receiving tythes.
+type Config struct {
 	Destination struct {
 		Type    PaymentType `json:"type"`
 		Address string      `json:"address"`
 	} `json:"destination"`
 }
 
-// Read loads the PackageConfig of a package if there is one. Returns nil, nil if no config.
-func Read(url *url.URL) (*PackageConfig, error) {
+// Read loads the Config of a package if there is one. Returns nil, nil if no config.
+func Read(url *url.URL) (*Config, error) {
 	w := func(err error) error {
 		return errors.Wrapf(err, "Could not read config for repo: %s:", url.String())
 	}
@@ -58,7 +58,7 @@ func Read(url *url.URL) (*PackageConfig, error) {
 		return nil, w(err)
 	}
 
-	var c PackageConfig
+	var c Config
 	d := json.NewDecoder(f)
 	err = d.Decode(&c)
 

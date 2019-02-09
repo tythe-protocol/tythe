@@ -1,4 +1,4 @@
-package tcfg
+package tconf
 
 import (
 	"io/ioutil"
