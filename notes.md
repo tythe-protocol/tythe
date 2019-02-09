@@ -14,13 +14,4 @@ go-tythe send <address> <money>
 
 # lists all transitive dependencies of <project-url>
 go-tythe list
-
-# dep subcommand manages roots in the dependency graph
-# can be either your own repos, or else other top-level deps
-# that aren't discoverable, e.g., linux
-go-tythe dep add <package>
-go-tythe dep remove
-
-# shows transitive dep tree
-go-tythe dep list
 ```
