@@ -3,28 +3,33 @@ package dep
 import (
 	"bufio"
 	"bytes"
-	"io/ioutil"
+	"fmt"
 	"net/url"
 	"os"
 	"os/exec"
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/tythe-protocol/go-tythe/conf"
 	"github.com/tythe-protocol/go-tythe/git"
 )
 
+// Dep describes a dependency (direct or indirect) of a root package.
+type Dep struct {
+	// Name is a human-readable name for the dependency.
+	Name string
+	// Conf is the Tythe config for the dependency, or nil if there is none.
+	Conf *conf.Config
+}
+
 // List returns the transitive dependencies of the module at <url>.
 // Currently this only does Go dependencies, but it will grow to use many strategies.
-func List(url *url.URL) ([]string, error) {
+func List(url *url.URL, cacheDir string) ([]Dep, error) {
 	w := func(err error) error {
 		return errors.Wrapf(err, "Could not list dependencies of package: %s", url.String())
 	}
-	dir, err := ioutil.TempDir("", "go-tythe")
-	if err != nil {
-		return nil, w(err)
-	}
 
-	p, err := git.Clone(url, dir)
+	p, err := git.Clone(url, cacheDir)
 	if err != nil {
 		return nil, w(err)
 	}
@@ -38,19 +43,34 @@ func List(url *url.URL) ([]string, error) {
 
 	defer os.Chdir("-")
 
-	out, err := exec.Command("go", "list", "-m", "all").Output()
+	out, err := exec.Command("go", "list", "-f", "{{ .Path }}@{{ .Version }} {{ .Dir }}", "-m", "all").Output()
 	if err != nil {
 		return nil, w(err)
 	}
 
-	r := []string{}
+	r := []Dep{}
 	s := bufio.NewScanner(bytes.NewReader(out))
+	first := true
 	for s.Scan() {
-		p := strings.Split(s.Text(), " ")[0]
-		r = append(r, p)
+		t := s.Text()
+		p := strings.Split(t, " ")
+		if len(p) != 2 {
+			return nil, w(fmt.Errorf("Unexpected output from `go list`: %s", t))
+		}
+		if first {
+			first = false
+			continue
+		}
+		name, dir := p[0], p[1]
+		c, err := conf.Read(dir)
+		if err != nil {
+			return nil, w(err)
+		}
+		r = append(r, Dep{
+			Name: name,
+			Conf: c,
+		})
 	}
-
-	// TODO: get the URL of the package, not the path
 
 	return r, nil
 }

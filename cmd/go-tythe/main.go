@@ -11,6 +11,7 @@ import (
 	gdax "github.com/preichenberger/go-gdax"
 	"github.com/tythe-protocol/go-tythe/conf"
 	"github.com/tythe-protocol/go-tythe/dep"
+	"github.com/tythe-protocol/go-tythe/git"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -53,14 +54,19 @@ func payAll(app *kingpin.Application) (c command) {
 
 func list(app *kingpin.Application) (c command) {
 	c.cmd = app.Command("list", "List transitive dependencies of a package")
+	cacheDir := cacheDirFlag(c.cmd)
 	url := c.cmd.Arg("package-url", "URL of the package to list.").Required().URL()
 
 	c.handler = func() {
-		deps, err := dep.List(*url)
+		deps, err := dep.List(*url, *cacheDir)
 		d.CheckErrorNoUsage(err)
 
 		for _, d := range deps {
-			fmt.Println(d)
+			addr := "<no tythe>"
+			if d.Conf != nil {
+				addr = d.Conf.Destination.Address
+			}
+			fmt.Printf("%s: %s\n", d.Name, addr)
 		}
 	}
 
@@ -75,7 +81,10 @@ func payOne(app *kingpin.Application) (c command) {
 	amount := c.cmd.Arg("amount", "Amount to send to the package (in USD).").Required().Float()
 
 	c.handler = func() {
-		config, err := conf.Read(*url, *cacheDir)
+		p, err := git.Clone(*url, *cacheDir)
+		d.CheckErrorNoUsage(err)
+
+		config, err := conf.Read(p)
 		d.CheckErrorNoUsage(err)
 		if config == nil {
 			fmt.Printf("no tythe.json for package: %s", (*url).String())

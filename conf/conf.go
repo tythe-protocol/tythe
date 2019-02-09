@@ -3,13 +3,11 @@ package conf
 import (
 	"encoding/json"
 	"fmt"
-	"net/url"
 	"os"
 	"path"
 	"regexp"
 
 	"github.com/pkg/errors"
-	"github.com/tythe-protocol/go-tythe/git"
 )
 
 // PaymentType is a mechanism that go-tythe can use to move money between parties.
@@ -17,7 +15,8 @@ type PaymentType string
 
 const (
 	// USDC represents the USDC stablecoin backed by Coinbase and Circle.
-	USDC PaymentType = "USDC"
+	USDC      PaymentType = "USDC"
+	TytheFile string      = ".tythe"
 )
 
 var (
@@ -34,17 +33,12 @@ type Config struct {
 }
 
 // Read loads the Config of a package if there is one. Returns nil, nil if no config.
-func Read(url *url.URL, cacheDir string) (*Config, error) {
+func Read(dir string) (*Config, error) {
 	w := func(err error) error {
-		return errors.Wrapf(err, "Could not read config for repo: %s:", url.String())
+		return errors.Wrapf(err, "Could not read config for package: %s:", dir)
 	}
 
-	p, err := git.Clone(url, cacheDir)
-	if err != nil {
-		return nil, w(err)
-	}
-
-	f, err := os.Open(path.Join(p, "tythe.json"))
+	f, err := os.Open(path.Join(dir, TytheFile))
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
