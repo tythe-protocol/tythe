@@ -35,4 +35,4 @@ Not very much is implemented yet. See [notes](https://github.com/tythe-protocol/
 
 # For Open Source Developers
 
-Want to participate in Tythe? Add an appropriate [`tythe.json`](https://github.com/aboodman/tythe/blob/master/tythe-sample.json) to your repo and tweet the URL with `#tythe-protocol` and I'll send you some money.
+Want to participate in Tythe? Add an appropriate [`.tythe`](https://github.com/aboodman/tythe/blob/master/.tythe) to your repo and tweet the URL with `#tythe-protocol` and I'll send you some money.
