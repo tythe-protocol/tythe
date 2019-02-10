@@ -40,18 +40,18 @@ func (s *DepSuite) TestList(c *chk.C) {
 
 	tc := []struct {
 		in          string
-		expectError string
+		expectError bool
 		expectClone bool
 		numExpected int
 		expectTest2 bool
 	}{
-		{zTest1, "", false, 1, true},
-		{zTest2, "", false, 0, false},
-		{"not-exist", "Cannot list dependencies of package: not-exist: Directory does not exist: not-exist", false, 0, false},
-		{"file:" + zTest1, "", true, 1, true},
-		{"file:" + zTest2, "", true, 0, false},
-		{"file:not-exist", "dial tcp: lookup file: no such host", false, 0, false},
-		{root, "", false, 37, false},
+		{zTest1, false, false, 1, true},
+		{zTest2, false, false, 0, false},
+		{"not-exist", true, false, 0, false},
+		{"file:" + zTest1, false, true, 1, true},
+		{"file:" + zTest2, false, true, 0, false},
+		{"file:not-exist", true, false, 0, false},
+		{root, false, false, 37, false},
 	}
 
 	for _, t := range tc {
@@ -62,8 +62,8 @@ func (s *DepSuite) TestList(c *chk.C) {
 		c.Assert(err, chk.IsNil)
 		ds, err := List(u, dataDir)
 
-		if t.expectError != "" {
-			c.Check(err, chk.ErrorMatches, t.expectError)
+		if t.expectError {
+			c.Check(err, chk.NotNil)
 			c.Check(ds, chk.IsNil)
 			continue
 		}
