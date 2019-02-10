@@ -4,8 +4,11 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"os/user"
+
+	"github.com/tythe-protocol/go-tythe/plan"
 
 	"github.com/attic-labs/noms/go/d"
 	gdax "github.com/preichenberger/go-gdax"
@@ -40,12 +43,55 @@ func main() {
 
 func payAll(app *kingpin.Application) (c command) {
 	c.cmd = app.Command("pay-all", "Pay tythes for listed packages and their transitive dependencies")
-
-	_ = cacheDirFlag(c.cmd)
-	_ = c.cmd.Arg("amount", "amount to divide amongst the dependent packages").Required().Float64()
+	cacheDir := cacheDirFlag(c.cmd)
+	sandbox := sandboxFlag(c.cmd)
+	planFile := c.cmd.Arg("planFile", "describes how to pay dependencies -- see plan.go").Required().ExistingFile()
+	totalAmount := c.cmd.Arg("totalAmount", "amount to divide amongst the dependent packages").Required().Float64()
 
 	c.handler = func() {
-		// TODO :)
+		plan, err := plan.Load(*planFile)
+		d.CheckErrorNoUsage(err)
+
+		tythed := map[string]*conf.Config{}
+		tythedWeight := 0.0
+		totalDeps := 0
+		totalWeight := 0.0
+
+		for _, r := range plan.Roots {
+			u, err := url.Parse(r)
+			d.CheckErrorNoUsage(err)
+
+			p, err := resolvePackage(u, *cacheDir)
+			d.CheckErrorNoUsage(err)
+
+			ds, err := dep.List(p)
+			d.CheckErrorNoUsage(err)
+
+			for _, dep := range ds {
+				if _, ok := tythed[dep.Name]; ok {
+					continue
+				}
+
+				if dep.Conf != nil {
+					tythed[p] = dep.Conf
+					tythedWeight += plan.Weight(dep.Name)
+				}
+
+				totalDeps++
+				totalWeight += plan.Weight(dep.Name)
+			}
+		}
+
+		fmt.Printf("Found %d total deps (%.2f total weight) and %d tythed deps (%.2f weight)\n", totalDeps, totalWeight, len(tythed), tythedWeight)
+
+		spend := *totalAmount * tythedWeight / totalWeight
+		fmt.Printf("Ready to send %.2f?\n", spend)
+		confirmContinue()
+
+		for dep, cfg := range tythed {
+			amt := spend * plan.Weight(dep) / totalWeight
+			sendImpl(amt, cfg.Destination.Address, *sandbox)
+		}
 	}
 
 	return c
@@ -77,7 +123,7 @@ func list(app *kingpin.Application) (c command) {
 
 func payOne(app *kingpin.Application) (c command) {
 	c.cmd = app.Command("pay-one", "Pay a single package")
-
+	sandbox := sandboxFlag(c.cmd)
 	cacheDir := cacheDirFlag(c.cmd)
 	url := c.cmd.Arg("package", "File path or URL of the package to pay.").Required().URL()
 	amount := c.cmd.Arg("amount", "Amount to send to the package (in USD).").Required().Float()
@@ -99,7 +145,7 @@ func payOne(app *kingpin.Application) (c command) {
 		err = enc.Encode(config)
 		d.CheckError(err)
 
-		sendImpl(*amount, config.Destination.Address)
+		sendImpl(*amount, config.Destination.Address, *sandbox)
 	}
 
 	return
@@ -107,6 +153,7 @@ func payOne(app *kingpin.Application) (c command) {
 
 func send(app *kingpin.Application) (c command) {
 	c.cmd = app.Command("send", "Sends USDC to the specified address (for testing/development)")
+	sandbox := sandboxFlag(c.cmd)
 	address := c.cmd.Arg("address", "USDC address to send to.").Required().String()
 	amount := c.cmd.Arg("amount", "Amount to send (in USD).").Required().Float()
 
@@ -118,28 +165,24 @@ func send(app *kingpin.Application) (c command) {
 			return
 		}
 
-		sendImpl(*amount, *address)
+		fmt.Printf("Really send $%f (y/n)?\n", *amount)
+		confirmContinue()
+
+		sendImpl(*amount, *address, *sandbox)
 	}
 
 	return
 }
 
-func sendImpl(amt float64, addr string) {
+func sendImpl(amt float64, addr string, sandbox bool) {
 	key := getEnv("TYTHE_COINBASE_API_KEY")
 	secret := getEnv("TYTHE_COINBASE_API_SECRET")
 	passphrase := getEnv("TYTHE_COINBASE_API_PASSPHRASE")
 
-	fmt.Printf("Really send $%f (y/n)?\n", amt)
-
-	reader := bufio.NewReader(os.Stdin)
-	line, err := reader.ReadString('\n')
-	d.CheckErrorNoUsage(err)
-
-	if line != "y\n" {
-		return
-	}
-
 	client := gdax.NewClient(secret, key, passphrase)
+	if sandbox {
+		client.BaseURL = "https://api-public.sandbox.pro.coinbase.com"
+	}
 	params := map[string]interface{}{
 		"amount":         amt,
 		"currency":       conf.USDC,
@@ -147,10 +190,20 @@ func sendImpl(amt float64, addr string) {
 	}
 
 	var res map[string]interface{}
-	_, err = client.Request("POST", "/withdrawals/crypto", params, &res)
+	_, err := client.Request("POST", "/withdrawals/crypto", params, &res)
 	d.PanicIfError(err)
 
 	fmt.Printf("All done! Coinbase transaction ID: %s\n", res["id"])
+}
+
+func confirmContinue() {
+	reader := bufio.NewReader(os.Stdin)
+	line, err := reader.ReadString('\n')
+	d.CheckErrorNoUsage(err)
+
+	if line != "y\n" {
+		os.Exit(0)
+	}
 }
 
 func getEnv(s string) string {
@@ -170,4 +223,8 @@ func cacheDirFlag(cmd *kingpin.CmdClause) *string {
 	}
 	return cmd.Flag("cache-dir", "Directory to write cached repos to during crawling").
 		Default(fmt.Sprintf("%s/.go-tythe", u.HomeDir)).String()
+}
+
+func sandboxFlag(cmd *kingpin.CmdClause) *bool {
+	return cmd.Flag("sandbox", "Use the sandbox Coinbase API").Default("false").Bool()
 }
