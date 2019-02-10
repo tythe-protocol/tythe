@@ -8,12 +8,11 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/tythe-protocol/go-tythe/conf"
-
-	"github.com/tythe-protocol/go-tythe/git"
-
 	// TODO: Don't really like this check package - either get or recreate the one from PL
 	chk "gopkg.in/check.v1"
+
+	"github.com/tythe-protocol/go-tythe/conf"
+	"github.com/tythe-protocol/go-tythe/git"
 )
 
 func Test(t *testing.T) { chk.TestingT(t) }

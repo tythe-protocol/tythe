@@ -11,6 +11,7 @@ import (
 	gogit "gopkg.in/src-d/go-git.v4"
 )
 
+// DirForURL calculates a unique filename to store a repo in.
 func DirForURL(url *url.URL, dataDir string) string {
 	// TODO: would be nice to use something more readable than sha1
 	// couldn't find a handy path escaping function

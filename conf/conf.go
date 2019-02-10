@@ -15,8 +15,10 @@ type PaymentType string
 
 const (
 	// USDC represents the USDC stablecoin backed by Coinbase and Circle.
-	USDC      PaymentType = "USDC"
-	TytheFile string      = ".tythe"
+	USDC PaymentType = "USDC"
+
+	// TytheFile is the name of the special metadata file that declares a package as opting into Tythe.
+	TytheFile string = ".tythe"
 )
 
 var (
