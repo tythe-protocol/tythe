@@ -4,14 +4,12 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"net/url"
 	"os"
 	"os/exec"
 	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/tythe-protocol/go-tythe/conf"
-	"github.com/tythe-protocol/go-tythe/git"
 )
 
 // Dep describes a dependency (direct or indirect) of a root package.
@@ -22,45 +20,17 @@ type Dep struct {
 	Conf *conf.Config
 }
 
-// List returns the transitive dependencies of the module at <url>.
-//
-// If <url> has empty scheme or "file" scheme, it is interpreted as a path and read
-// from there directly. Otherwise, it is downloaded to a temporary directly and read
-// from the temp directory.
+// List returns the transitive dependencies of the module at <path>.
 //
 // Currently this only does Go dependencies, but it will grow to use many strategies.
-func List(url *url.URL, cacheDir string) ([]Dep, error) {
-	var p string
-	var err error
-
+func List(path string) ([]Dep, error) {
 	w := func(err error) error {
-		return errors.Wrapf(err, "Cannot list dependencies of package: %s", url.String())
-	}
-
-	switch url.Scheme {
-	case "":
-		p = url.String()
-		fmt.Println(os.Expand(p, nil))
-
-		_, err := os.Stat(p)
-		if err != nil {
-			if os.IsNotExist(err) {
-				err = fmt.Errorf("Directory does not exist: %s", p)
-			}
-			return nil, w(err)
-		}
-		break
-	default:
-		p, err = git.Clone(url, cacheDir)
-		if err != nil {
-			return nil, err
-		}
-		break
+		return errors.Wrapf(err, "Cannot list dependencies of package: %s", path)
 	}
 
 	// It would be cool to use https://golang.org/src/cmd/go/internal/modload/
 	// instead, but not allowed.
-	err = os.Chdir(p)
+	err := os.Chdir(path)
 	if err != nil {
 		return nil, w(err)
 	}

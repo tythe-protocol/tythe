@@ -11,7 +11,6 @@ import (
 	gdax "github.com/preichenberger/go-gdax"
 	"github.com/tythe-protocol/go-tythe/conf"
 	"github.com/tythe-protocol/go-tythe/dep"
-	"github.com/tythe-protocol/go-tythe/git"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -58,7 +57,10 @@ func list(app *kingpin.Application) (c command) {
 	url := c.cmd.Arg("package", "File path or URL of the package to list.").Required().URL()
 
 	c.handler = func() {
-		deps, err := dep.List(*url, *cacheDir)
+		dir, err := resolvePackage(*url, *cacheDir)
+		d.CheckErrorNoUsage(err)
+
+		deps, err := dep.List(dir)
 		d.CheckErrorNoUsage(err)
 
 		for _, d := range deps {
@@ -77,11 +79,11 @@ func payOne(app *kingpin.Application) (c command) {
 	c.cmd = app.Command("pay-one", "Pay a single package")
 
 	cacheDir := cacheDirFlag(c.cmd)
-	url := c.cmd.Arg("package-url", "URL of the package to pay.").Required().URL()
+	url := c.cmd.Arg("package", "File path or URL of the package to pay.").Required().URL()
 	amount := c.cmd.Arg("amount", "Amount to send to the package (in USD).").Required().Float()
 
 	c.handler = func() {
-		p, err := git.Clone(*url, *cacheDir)
+		p, err := resolvePackage(*url, *cacheDir)
 		d.CheckErrorNoUsage(err)
 
 		config, err := conf.Read(p)

@@ -1,8 +1,6 @@
 package dep
 
 import (
-	"io/ioutil"
-	"net/url"
 	"os"
 	"path"
 	"runtime"
@@ -12,7 +10,6 @@ import (
 	chk "gopkg.in/check.v1"
 
 	"github.com/tythe-protocol/go-tythe/conf"
-	"github.com/tythe-protocol/go-tythe/git"
 )
 
 func Test(t *testing.T) { chk.TestingT(t) }
@@ -41,44 +38,22 @@ func (s *DepSuite) TestList(c *chk.C) {
 	tc := []struct {
 		in          string
 		expectError bool
-		expectClone bool
 		numExpected int
 		expectTest2 bool
 	}{
-		{zTest1, false, false, 1, true},
-		{zTest2, false, false, 0, false},
-		{"not-exist", true, false, 0, false},
-		{"file:" + zTest1, false, true, 1, true},
-		{"file:" + zTest2, false, true, 0, false},
-		{"file:not-exist", true, false, 0, false},
-		{root, false, false, 37, false},
+		{zTest1, false, 1, true},
+		{zTest2, false, 0, false},
+		{"not-exist", true, 0, false},
+		{root, false, 37, false},
 	}
 
 	for _, t := range tc {
-		dataDir, err := ioutil.TempDir("", "")
-		c.Assert(err, chk.IsNil)
-		u, err := url.Parse(t.in)
-		c.Assert(u, chk.NotNil)
-		c.Assert(err, chk.IsNil)
-		ds, err := List(u, dataDir)
+		ds, err := List(t.in)
 
 		if t.expectError {
 			c.Check(err, chk.NotNil)
 			c.Check(ds, chk.IsNil)
 			continue
-		}
-
-		if t.expectClone {
-			d, err := os.Open(git.DirForURL(u, dataDir))
-			c.Assert(err, chk.IsNil)
-			ns, err := d.Readdirnames(-1)
-			c.Assert(err, chk.IsNil)
-			c.Check(ns, chk.Not(chk.HasLen), 0)
-		} else {
-			_, err := os.Stat(git.DirForURL(u, dataDir))
-			if err == nil || !os.IsNotExist(err) {
-				panic("expected dir to be empty")
-			}
 		}
 
 		c.Assert(ds, chk.HasLen, t.numExpected)
