@@ -11,15 +11,20 @@ import (
 	gogit "gopkg.in/src-d/go-git.v4"
 )
 
+func DirForURL(url *url.URL, dataDir string) string {
+	// TODO: would be nice to use something more readable than sha1
+	// couldn't find a handy path escaping function
+	dirName := sha1.Sum([]byte(url.String()))
+	return path.Join(dataDir, string(hex.EncodeToString(dirName[:])))
+}
+
 // Clone fetches the latest copy of the git repo at a URL to a local directory.
 func Clone(url *url.URL, dataPath string) (rootPath string, err error) {
 	w := func(err error) error {
 		return errors.Wrap(err, "Could not clone/sync git repo")
 	}
-	// TODO: would be nice to use something more readable than sha1
-	// couldn't find a handy path escaping function
-	dirName := sha1.Sum([]byte(url.String()))
-	fullPath := path.Join(dataPath, string(hex.EncodeToString(dirName[:])))
+
+	fullPath := DirForURL(url, dataPath)
 	_, err = os.Stat(fullPath)
 
 	if err == nil {

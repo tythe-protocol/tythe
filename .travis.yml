@@ -7,5 +7,9 @@ os:
 env:
   - GO111MODULE=on
 script:
+  - cd ../
+  - git clone https://github.com/tythe-protocol/z_test1
+  - git clone https://github.com/tythe-protocol/z_test2
+  - cd -
   - go build ./...
   - go test ./...

@@ -55,7 +55,7 @@ func payAll(app *kingpin.Application) (c command) {
 func list(app *kingpin.Application) (c command) {
 	c.cmd = app.Command("list", "List transitive dependencies of a package")
 	cacheDir := cacheDirFlag(c.cmd)
-	url := c.cmd.Arg("package-url", "URL of the package to list.").Required().URL()
+	url := c.cmd.Arg("package", "File path or URL of the package to list.").Required().URL()
 
 	c.handler = func() {
 		deps, err := dep.List(*url, *cacheDir)

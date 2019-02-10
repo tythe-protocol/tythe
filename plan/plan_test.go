@@ -5,7 +5,7 @@ import (
 	"path"
 	"testing"
 
-	// TODO: Don't really like this check package - either recreate the one from PL
+	// TODO: Don't really like this check package - either get or recreate the one from PL
 	. "gopkg.in/check.v1"
 )
 
