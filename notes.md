@@ -15,3 +15,12 @@ go-tythe send <address> <money>
 # lists all transitive dependencies of <project-url>
 go-tythe list
 ```
+
+todo:
+
+* test `go-tythe list` - created some sample projects, doesn't seem to be working yet
+* finish `go-tythe pay-all` - start is in local branch
+  - use idempotency token from coinbase api
+* implement crawling of npm
+* look at shapeshifter to support btc output
+* implement coinbase buy widget
