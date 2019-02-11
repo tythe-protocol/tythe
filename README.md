@@ -25,8 +25,9 @@ GO111MODULE=on go build ./cmd/go-tythe
 # Run
 
 ```
-# Send $5.00 to the maintainer of <repo-url>
-./go-tythe <repo-url> 5
+# This splits a tythe of $2 among all the dependencies of <repo-url>
+# For example if you run it with "https://github.com/tythe-protocol/z_test1", it sends $1 to me :-|.
+./go-tythe pay-all 2 <repo-url>
 ```
 
 # Status

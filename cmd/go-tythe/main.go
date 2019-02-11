@@ -4,11 +4,8 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"net/url"
 	"os"
 	"os/user"
-
-	"github.com/tythe-protocol/go-tythe/plan"
 
 	"github.com/attic-labs/noms/go/d"
 	gdax "github.com/preichenberger/go-gdax"
@@ -45,23 +42,17 @@ func payAll(app *kingpin.Application) (c command) {
 	c.cmd = app.Command("pay-all", "Pay tythes for listed packages and their transitive dependencies")
 	cacheDir := cacheDirFlag(c.cmd)
 	sandbox := sandboxFlag(c.cmd)
-	planFile := c.cmd.Arg("planFile", "describes how to pay dependencies -- see plan.go").Required().ExistingFile()
 	totalAmount := c.cmd.Arg("totalAmount", "amount to divide amongst the dependent packages").Required().Float64()
+	roots := c.cmd.Arg("package", "one or more root packages to crawl").Required().URLList()
 
 	c.handler = func() {
-		plan, err := plan.Load(*planFile)
-		d.CheckErrorNoUsage(err)
-
 		tythed := map[string]*conf.Config{}
 		tythedWeight := 0.0
 		totalDeps := 0
 		totalWeight := 0.0
 
-		for _, r := range plan.Roots {
-			u, err := url.Parse(r)
-			d.CheckErrorNoUsage(err)
-
-			p, err := resolvePackage(u, *cacheDir)
+		for _, r := range *roots {
+			p, err := resolvePackage(r, *cacheDir)
 			d.CheckErrorNoUsage(err)
 
 			ds, err := dep.List(p)
@@ -74,11 +65,11 @@ func payAll(app *kingpin.Application) (c command) {
 
 				if dep.Conf != nil {
 					tythed[p] = dep.Conf
-					tythedWeight += plan.Weight(dep.Name)
+					tythedWeight += 1.0 // TODO: impl weight on the CLI
 				}
 
 				totalDeps++
-				totalWeight += plan.Weight(dep.Name)
+				totalWeight += 1.0
 			}
 		}
 
@@ -88,8 +79,9 @@ func payAll(app *kingpin.Application) (c command) {
 		fmt.Printf("Ready to send %.2f?\n", spend)
 		confirmContinue()
 
-		for dep, cfg := range tythed {
-			amt := spend * plan.Weight(dep) / totalWeight
+		for _, cfg := range tythed {
+			const packageWeight = 1.0
+			amt := spend * packageWeight / totalWeight
 			sendImpl(amt, cfg.Destination.Address, *sandbox)
 		}
 	}

@@ -41,7 +41,7 @@ func (s *DepSuite) TestList(c *chk.C) {
 		numExpected int
 		expectTest2 bool
 	}{
-		{zTest1, false, 1, true},
+		{zTest1, false, 2, true},
 		{zTest2, false, 0, false},
 		{"not-exist", true, 0, false},
 		{root, false, 37, false},
