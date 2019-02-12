@@ -106,7 +106,7 @@ func list(app *kingpin.Application) (c command) {
 			if d.Conf != nil {
 				addr = d.Conf.Destination.Address
 			}
-			fmt.Printf("%s: %s\n", d.Name, addr)
+			fmt.Printf("%s %s\n", d, addr)
 		}
 	}
 

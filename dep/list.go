@@ -12,12 +12,42 @@ import (
 	"github.com/tythe-protocol/go-tythe/conf"
 )
 
+// Type represents a dependency "type". For example, Go or npm.
+type Type int
+
+const (
+	// None represents no dependency type.
+	None Type = iota
+
+	// Go represents a golang dependency.
+	Go
+)
+
+func (t Type) String() string {
+	switch t {
+	case None:
+		return "<none>"
+	case Go:
+		return "go"
+	default:
+		return "<invalid>"
+	}
+}
+
 // Dep describes a dependency (direct or indirect) of a root package.
 type Dep struct {
+	// Type is the type of dependency.
+	Type Type
+
 	// Name is a human-readable name for the dependency.
 	Name string
+
 	// Conf is the Tythe config for the dependency, or nil if there is none.
 	Conf *conf.Config
+}
+
+func (d Dep) String() string {
+	return fmt.Sprintf("%s:%s", d.Type, d.Name)
 }
 
 // List returns the transitive dependencies of the module at <path>.
@@ -59,6 +89,7 @@ func List(path string) ([]Dep, error) {
 			return nil, w(err)
 		}
 		r = append(r, Dep{
+			Type: Go,
 			Name: name,
 			Conf: c,
 		})
