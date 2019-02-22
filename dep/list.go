@@ -29,6 +29,8 @@ func (t Type) String() string {
 		return "<none>"
 	case Go:
 		return "go"
+	case NPM:
+		return "npm"
 	default:
 		return "<invalid>"
 	}

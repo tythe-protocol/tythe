@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/user"
 
-	"github.com/attic-labs/noms/go/d"
-	gdax "github.com/preichenberger/go-gdax"
 	"github.com/tythe-protocol/go-tythe/conf"
 	"github.com/tythe-protocol/go-tythe/dep"
+
+	"github.com/attic-labs/noms/go/d"
+	homedir "github.com/mitchellh/go-homedir"
+	gdax "github.com/preichenberger/go-gdax"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -208,13 +209,13 @@ func getEnv(s string) string {
 }
 
 func cacheDirFlag(cmd *kingpin.CmdClause) *string {
-	u, err := user.Current()
+	hd, err := homedir.Dir()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(1)
 	}
 	return cmd.Flag("cache-dir", "Directory to write cached repos to during crawling").
-		Default(fmt.Sprintf("%s/.go-tythe", u.HomeDir)).String()
+		Default(fmt.Sprintf("%s/.go-tythe", hd)).String()
 }
 
 func sandboxFlag(cmd *kingpin.CmdClause) *bool {

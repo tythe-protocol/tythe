@@ -3,18 +3,16 @@ package npm
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"os"
 	"os/exec"
 	ppath "path"
 	"runtime"
 	"strings"
-	"sync"
 
 	"github.com/tythe-protocol/go-tythe/conf"
 	"github.com/tythe-protocol/go-tythe/dep/shared"
 
-	"github.com/pkg/errors"
+	homedir "github.com/mitchellh/go-homedir"
 )
 
 // List returns all the transitive NPM dependencies of the package at <path>
@@ -26,85 +24,94 @@ func List(path string) ([]shared.Dep, error) {
 
 	defer os.Chdir("-")
 
-	type outchs struct {
-		Name string
-		Conf *conf.Config
-		Err  error
-	}
-	inch := make(chan string)
-	outch := make(chan outchs)
+	// Ignore errors because ls returns errors for unmet peer deps, even when it is still returning useful info.
+	out, _ := exec.Command("npm", "ls").Output()
+	s := bufio.NewScanner(bytes.NewReader(out))
+	pkgs := map[string]struct{}{}
 
-	wg := sync.WaitGroup{}
-	for i := 0; i < runtime.NumCPU(); i++ {
-		go func() {
-			defer wg.Done()
-			for in := range inch {
-				c, err := readConf(in)
-				outch <- outchs{
-					Name: in,
-					Conf: c,
-					Err:  err,
-				}
-			}
-		}()
-		wg.Add(1)
-	}
-
-	go func() {
-		wg.Wait()
-		close(outch)
-	}()
-
-	go func() {
-		// Ignore errors because ls returns errors for unmet peer deps, even when it is still returning useful info.
-		out, _ := exec.Command("npm", "ls").Output()
-		s := bufio.NewScanner(bytes.NewReader(out))
-		pkgs := map[string]struct{}{}
-
-		// Skip the first line - it is the root module itself
-		s.Scan()
-		for s.Scan() {
-			t := s.Text()
-			for _, f := range strings.Split(t, " ") {
-				if strings.Contains(f, "@") {
-					p := f[:strings.LastIndex(f, "@")]
-					pkgs[p] = struct{}{}
-				}
+	// Skip the first line - it is the root module itself
+	s.Scan()
+	for s.Scan() {
+		t := s.Text()
+		for _, f := range strings.Split(t, " ") {
+			if strings.Contains(f, "@") {
+				p := f[:strings.LastIndex(f, "@")]
+				pkgs[p] = struct{}{}
 			}
 		}
-
-		for p := range pkgs {
-			inch <- p
-		}
-
-		close(inch)
-	}()
-
-	r := []shared.Dep{}
-	for out := range outch {
-		if out.Err != nil {
-			return nil, out.Err
-		}
-		r = append(r, shared.Dep{
-			Name: out.Name,
-			Conf: out.Conf,
-		})
-		fmt.Println(out.Name, out.Conf)
 	}
 
-	return r, nil
-}
-
-func readConf(name string) (*conf.Config, error) {
-	// Seems like there'd be a way to do this from the CLI??
-	cmd := exec.Command("node", "-e", fmt.Sprintf("console.log(require.resolve('%s/package.json'))", name))
-	out, err := cmd.Output()
-	// Have to swallow this error because some packages (e.g., electron) lack a package.json??
-	fmt.Fprintln(os.Stderr, errors.Wrapf(err, "Error from command: %s", cmd.Args))
-	root := ppath.Dir(string(out))
-	c, err := conf.Read(root)
+	// This is basically an implementation of require.resolve, from:
+	// https://nodejs.org/api/modules.html#modules_all_together
+	dirs, err := searchDirs(path)
 	if err != nil {
 		return nil, err
 	}
-	return c, nil
+
+	r := []shared.Dep{}
+	for pkg := range pkgs {
+		for _, dir := range dirs {
+			modpath := ppath.Join(dir, "node_modules", pkg)
+			_, err := os.Stat(modpath)
+			if os.IsNotExist(err) {
+				continue
+			}
+			if err != nil {
+				return nil, err
+			}
+			c, err := conf.Read(modpath)
+			if err != nil {
+				return nil, err
+			}
+			d := shared.Dep{
+				Name: pkg,
+				Conf: c,
+			}
+			r = append(r, d)
+			break
+		}
+	}
+	return r, nil
+}
+
+func searchDirs(path string) ([]string, error) {
+	dirs, err := nodeGlobalFolders()
+	if err != nil {
+		return nil, err
+	}
+
+	for path != "" {
+		dir, leaf := ppath.Split(path)
+		if leaf == "node_modules" {
+			continue
+		}
+		dirs = append(dirs, path)
+		path = dir
+	}
+
+	return dirs, nil
+}
+
+func nodeGlobalFolders() ([]string, error) {
+	dirs := nodePath()
+	hd, err := homedir.Dir()
+	if err != nil {
+		return nil, err
+	}
+	dirs = append(dirs, ppath.Join(hd, ".node_modules"))
+	dirs = append(dirs, ppath.Join(hd, ".node_libraries"))
+	// TODO: node_prefix - I don't get this bit
+	return dirs, nil
+}
+
+func nodePath() []string {
+	np := os.Getenv("NODE_PATH")
+	if np == "" {
+		return nil
+	}
+	sep := ":"
+	if runtime.GOOS == "windows" {
+		sep = ";"
+	}
+	return strings.Split(np, sep)
 }
