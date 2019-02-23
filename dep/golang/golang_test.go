@@ -1,4 +1,4 @@
-package dep
+package golang
 
 import (
 	"os"
@@ -21,7 +21,7 @@ var _ = chk.Suite(&DepSuite{})
 func (s *DepSuite) TestList(c *chk.C) {
 	_, thisFile, _, _ := runtime.Caller(0)
 
-	root := path.Dir(path.Dir(thisFile))
+	root := path.Dir(path.Dir(path.Dir(thisFile)))
 	repoParent := path.Dir(root)
 	zTest1 := path.Join(repoParent, "z_test1")
 	zTest2 := path.Join(repoParent, "z_test2")

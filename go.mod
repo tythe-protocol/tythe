@@ -8,7 +8,6 @@ require (
 	github.com/mitchellh/go-homedir v1.0.0
 	github.com/pkg/errors v0.8.1
 	github.com/preichenberger/go-gdax v0.0.0-20190207020012-a72ddaa0b1fa
-	golang.org/x/arch v0.0.0-20181203225421-5a4828bb7045 // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127
 	gopkg.in/src-d/go-git.v4 v4.9.1
