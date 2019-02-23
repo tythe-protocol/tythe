@@ -6,21 +6,15 @@ import (
 	"runtime"
 	"testing"
 
-	// TODO: Don't really like this check package - either get or recreate the one from PL
-	chk "gopkg.in/check.v1"
-
 	"github.com/tythe-protocol/go-tythe/conf"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func Test(t *testing.T) { chk.TestingT(t) }
+func TestBasics(t *testing.T) {
+	assert := assert.New(t)
 
-type DepSuite struct{}
-
-var _ = chk.Suite(&DepSuite{})
-
-func (s *DepSuite) TestList(c *chk.C) {
 	_, thisFile, _, _ := runtime.Caller(0)
-
 	root := path.Dir(path.Dir(path.Dir(thisFile)))
 	repoParent := path.Dir(root)
 	zTest1 := path.Join(repoParent, "z_test1")
@@ -32,7 +26,7 @@ func (s *DepSuite) TestList(c *chk.C) {
 	}
 
 	if !dirExist(zTest1) || !dirExist(zTest2) {
-		c.Error("TestList requires supplementary repos zTest1 and zTest2")
+		assert.Fail("TestList requires supplementary repos zTest1 and zTest2")
 	}
 
 	tc := []struct {
@@ -51,22 +45,22 @@ func (s *DepSuite) TestList(c *chk.C) {
 		ds, err := List(t.in)
 
 		if t.expectError {
-			c.Check(err, chk.NotNil)
-			c.Check(ds, chk.IsNil)
+			assert.Error(err)
+			assert.Nil(ds)
 			continue
 		}
 
-		c.Assert(ds, chk.HasLen, t.numExpected)
+		assert.Equal(t.numExpected, len(ds))
 
 		foundTest2 := false
 		for _, d := range ds {
 			if d.Name == "github.com/tythe-protocol/z_test2@v0.0.0-20190209085012-7a77ae91ad6e" {
-				c.Check(foundTest2, chk.Not(chk.Equals), true)
-				c.Check(d.Conf.Destination.Address, chk.Equals, "0x1111111111111111111111111111111111111111")
-				c.Check(d.Conf.Destination.Type, chk.Equals, conf.USDC)
+				assert.False(foundTest2)
+				assert.Equal("0x1111111111111111111111111111111111111111", d.Conf.Destination.Address)
+				assert.Equal(conf.USDC, d.Conf.Destination.Type)
 				foundTest2 = true
 			}
 		}
-		c.Check(foundTest2, chk.Equals, t.expectTest2)
+		assert.Equal(t.expectTest2, foundTest2)
 	}
 }
