@@ -17,8 +17,8 @@ const (
 	// USDC represents the USDC stablecoin backed by Coinbase and Circle.
 	USDC PaymentType = "USDC"
 
-	// TytheFile is the name of the special metadata file that declares a package as opting into Tythe.
-	TytheFile string = ".tythe"
+	// DonateFile is the name of the dot-donate file (see https://github.com/aboodman/dot-donate).
+	DonateFile string = ".donate"
 )
 
 var (
@@ -40,7 +40,7 @@ func Read(dir string) (*Config, error) {
 		return errors.Wrapf(err, "Could not read config for package: %s:", dir)
 	}
 
-	f, err := os.Open(path.Join(dir, TytheFile))
+	f, err := os.Open(path.Join(dir, DonateFile))
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil

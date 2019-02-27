@@ -4,6 +4,7 @@ import (
 	"os"
 	"path"
 	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/tythe-protocol/go-tythe/conf"
@@ -54,7 +55,7 @@ func TestBasics(t *testing.T) {
 
 		foundTest2 := false
 		for _, d := range ds {
-			if d.Name == "github.com/tythe-protocol/z_test2@v0.0.0-20190209085012-7a77ae91ad6e" {
+			if strings.HasPrefix(d.Name, "github.com/tythe-protocol/z_test2") {
 				assert.False(foundTest2)
 				assert.Equal("0x1111111111111111111111111111111111111111", d.Conf.Destination.Address)
 				assert.Equal(conf.USDC, d.Conf.Destination.Type)
