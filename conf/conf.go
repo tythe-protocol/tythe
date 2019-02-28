@@ -22,16 +22,17 @@ const (
 )
 
 var (
+	// ErrNoSupportedPaymentType is returned by conf.Read() when the config looks valid, but it
+	// doesn't contain a payment type go-tythe supports.
+	ErrNoSupportedPaymentType error = errors.New("No supported payment type")
+
 	usdcAddressPattern = regexp.MustCompile("^0x[0-9a-f]{40}$")
 )
 
 // Config describes the json metadata developers add to their package to opt-in
 // to receiving tythes.
 type Config struct {
-	Destination struct {
-		Type    PaymentType `json:"type"`
-		Address string      `json:"address"`
-	} `json:"destination"`
+	USDC string `json:"USDC,omitempty"`
 }
 
 // Read loads the Config of a package if there is one. Returns nil, nil if no config.
@@ -53,15 +54,15 @@ func Read(dir string) (*Config, error) {
 	err = d.Decode(&c)
 
 	if err != nil {
-		return nil, w(err)
+		return nil, w(errors.Wrap(err, "donate file is not valid JSON"))
 	}
 
-	if c.Destination.Type != USDC {
-		return nil, fmt.Errorf("invalid tythe.json - destination type: \"%s\" not supported", c.Destination.Type)
+	if c.USDC == "" {
+		return nil, ErrNoSupportedPaymentType
 	}
 
-	if !ValidUSDCAddress(c.Destination.Address) {
-		return nil, fmt.Errorf("invalid destination address in tythe.json: \"%s\"", c.Destination.Address)
+	if !ValidUSDCAddress(c.USDC) {
+		return nil, fmt.Errorf("invalid destination address in donate file: \"%s\"", c.USDC)
 	}
 
 	return &c, nil

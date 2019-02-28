@@ -83,7 +83,7 @@ func payAll(app *kingpin.Application) (c command) {
 		for _, cfg := range tythed {
 			const packageWeight = 1.0
 			amt := spend * packageWeight / totalWeight
-			sendImpl(amt, cfg.Destination.Address, *sandbox)
+			sendImpl(amt, cfg.USDC, *sandbox)
 		}
 	}
 
@@ -105,7 +105,7 @@ func list(app *kingpin.Application) (c command) {
 		for _, d := range deps {
 			addr := "<no tythe>"
 			if d.Conf != nil {
-				addr = d.Conf.Destination.Address
+				addr = d.Conf.USDC
 			}
 			fmt.Printf("%s %s\n", d, addr)
 		}
@@ -138,7 +138,7 @@ func payOne(app *kingpin.Application) (c command) {
 		err = enc.Encode(config)
 		d.CheckError(err)
 
-		sendImpl(*amount, config.Destination.Address, *sandbox)
+		sendImpl(*amount, config.USDC, *sandbox)
 	}
 
 	return

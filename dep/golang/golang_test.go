@@ -7,8 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tythe-protocol/go-tythe/conf"
-
 	"github.com/stretchr/testify/assert"
 )
 
@@ -57,8 +55,7 @@ func TestBasics(t *testing.T) {
 		for _, d := range ds {
 			if strings.HasPrefix(d.Name, "github.com/tythe-protocol/z_test2") {
 				assert.False(foundTest2)
-				assert.Equal("0x1111111111111111111111111111111111111111", d.Conf.Destination.Address)
-				assert.Equal(conf.USDC, d.Conf.Destination.Type)
+				assert.Equal("0x1111111111111111111111111111111111111111", d.Conf.USDC)
 				foundTest2 = true
 			}
 		}
