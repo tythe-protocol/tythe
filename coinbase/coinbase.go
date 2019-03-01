@@ -34,8 +34,8 @@ func Send(txs map[string]float64, sandbox bool) map[string]SendResult {
 
 	ret := map[string]SendResult{}
 	for addr, amt := range txs {
-		params := map[string]interface{}{
-			"amount":         amt,
+		params := map[string]string{
+			"amount":         fmt.Sprintf("%.2f", amt),
 			"currency":       "USDC",
 			"crypto_address": addr,
 		}

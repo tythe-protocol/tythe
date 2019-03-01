@@ -49,9 +49,7 @@ func payAll(app *kingpin.Application) (c command) {
 
 	c.handler = func() {
 		tythed := map[string]*conf.Config{}
-		tythedWeight := 0.0
 		totalDeps := 0
-		totalWeight := 0.0
 
 		for _, r := range *roots {
 			p, err := resolvePackage(r, *cacheDir)
@@ -66,18 +64,16 @@ func payAll(app *kingpin.Application) (c command) {
 				}
 
 				if dep.Conf != nil {
-					tythed[p] = dep.Conf
-					tythedWeight += 1.0 // TODO: impl weight on the CLI
+					tythed[dep.Name] = dep.Conf
 				}
 
 				totalDeps++
-				totalWeight += 1.0
 			}
 		}
 
-		fmt.Printf("Found %d total deps (%.2f total weight) and %d tythed deps (%.2f weight)\n", totalDeps, totalWeight, len(tythed), tythedWeight)
+		fmt.Printf("Found %d total deps (%d tythed)\n", totalDeps, len(tythed))
 
-		spend := *totalAmount * tythedWeight / totalWeight
+		spend := *totalAmount * float64(len(tythed)) / float64(totalDeps)
 		fmt.Printf("Ready to send %.2f?\n", spend)
 		confirmContinue()
 
@@ -89,8 +85,7 @@ func payAll(app *kingpin.Application) (c command) {
 		}
 
 		for _, cfg := range tythed {
-			const packageWeight = 1.0
-			amt := spend * packageWeight / totalWeight
+			amt := spend / float64(len(tythed))
 			if cfg.PayPal != "" {
 				add(pp, amt, cfg.PayPal)
 			} else if cfg.USDC != "" {
@@ -98,20 +93,29 @@ func payAll(app *kingpin.Application) (c command) {
 			}
 		}
 
+		fmt.Println()
+
 		if len(pp) > 0 {
 			batchID, status, err := paypal.Send(pp, *sandbox)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error from PayPal: %s", err)
 			} else {
-				fmt.Printf("Sent %d PayPal transactions. BatchID: %s, Status: %s.\n", len(pp), batchID, status)
+				fmt.Printf("Sent %d PayPal transactions. BatchID: %s, Status: %s:\n", len(pp), batchID, status)
+				for addr, amt := range pp {
+					fmt.Printf("%s (%.2f)\n", addr, amt)
+				}
 			}
+			fmt.Println()
 		}
+
 		if len(cb) > 0 {
+			fmt.Println()
 			srs := coinbase.Send(cb, *sandbox)
 			fmt.Printf("Sent %d Coinbase transactions:\n", len(srs))
 			for addr, sr := range srs {
-				fmt.Printf("%s: %s\n", addr, sr.String())
+				fmt.Printf("%s (%.2f): %s\n", addr, cb[addr], sr.String())
 			}
+			fmt.Println()
 		}
 
 	}
