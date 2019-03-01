@@ -8,6 +8,7 @@ import (
 
 	"github.com/tythe-protocol/go-tythe/conf"
 	"github.com/tythe-protocol/go-tythe/dep"
+	"github.com/tythe-protocol/go-tythe/paypal"
 
 	"github.com/attic-labs/noms/go/d"
 	homedir "github.com/mitchellh/go-homedir"
@@ -145,13 +146,15 @@ func payOne(app *kingpin.Application) (c command) {
 }
 
 func send(app *kingpin.Application) (c command) {
-	c.cmd = app.Command("send", "Sends USDC to the specified address (for testing/development)")
+	c.cmd = app.Command("send", "Sends money to the specified address (for testing/development)")
 	sandbox := sandboxFlag(c.cmd)
-	address := c.cmd.Arg("address", "USDC address to send to.").Required().String()
+	paymentType := c.cmd.Arg("type", "Payment type to use").Required().HintOptions("PayPal", "USDC").String()
+	address := c.cmd.Arg("address", "Address to send to.").Required().String()
 	amount := c.cmd.Arg("amount", "Amount to send (in USD).").Required().Float()
 
 	c.handler = func() {
-		if !conf.ValidUSDCAddress(*address) {
+		// TODO: validate paypal
+		if *paymentType == "USDC" && !conf.ValidUSDCAddress(*address) {
 			fmt.Fprintln(os.Stderr, "Invalid USDC address")
 			// TODO: refactor exit handling
 			os.Exit(1)
@@ -161,7 +164,13 @@ func send(app *kingpin.Application) (c command) {
 		fmt.Printf("Really send $%f (y/n)?\n", *amount)
 		confirmContinue()
 
-		sendImpl(*amount, *address, *sandbox)
+		if *paymentType == "PayPal" {
+			batchID, status, err := paypal.Send(getEnv("PAYPAL_CLIENT_ID"), getEnv("PAYPAL_SECRET"), *amount, *address, *sandbox)
+			d.PanicIfError(err)
+			fmt.Printf("%s: %s\n", batchID, status)
+		} else {
+			sendImpl(*amount, *address, *sandbox)
+		}
 	}
 
 	return
