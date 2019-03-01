@@ -24,6 +24,11 @@ func List(path string) ([]shared.Dep, error) {
 
 	defer os.Chdir("-")
 
+	_, err = os.Stat("package.json")
+	if os.IsNotExist(err) {
+		return nil, nil
+	}
+
 	// Ignore errors because ls returns errors for unmet peer deps, even when it is still returning useful info.
 	out, _ := exec.Command("npm", "ls").Output()
 	s := bufio.NewScanner(bytes.NewReader(out))
