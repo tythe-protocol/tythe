@@ -3,12 +3,15 @@ package paypal
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/tythe-protocol/go-tythe/env"
+
+	"github.com/pkg/errors"
 )
 
 func url(sandbox bool, path string) string {
@@ -19,14 +22,18 @@ func url(sandbox bool, path string) string {
 	return fmt.Sprintf("https://api.%spaypal.com/v1/%s", ss, path)
 }
 
-func getToken(clientID, secret string, sandbox bool) (string, error) {
-	//clientid := getEnv("PAYPAL_CLIENT_ID")
-	//secret := getEnv("PAYPAL_SECRET")
+func getToken(sandbox bool) (string, error) {
+	clientID := env.Must("PAYPAL_CLIENT_ID")
+	secret := env.Must("PAYPAL_SECRET")
+
+	w := func(err error) error {
+		return errors.Wrap(err, "Failed to get auth token")
+	}
 
 	url := url(sandbox, "oauth2/token")
 	req, err := http.NewRequest("POST", url, strings.NewReader("grant_type=client_credentials"))
 	if err != nil {
-		return "", err
+		return "", w(err)
 	}
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Accept-Language", "en_US")
@@ -34,10 +41,13 @@ func getToken(clientID, secret string, sandbox bool) (string, error) {
 	req.SetBasicAuth(clientID, secret)
 	resp, err := (&http.Client{}).Do(req)
 	if err != nil {
-		return "", err
+		return "", w(err)
 	}
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("Response: %d: %s", resp.StatusCode, resp.Status)
+		buf := &bytes.Buffer{}
+		io.Copy(buf, resp.Body)
+		resp.Body.Close()
+		return "", w(fmt.Errorf("Response: %d %s - %s", resp.StatusCode, resp.Status, string(buf.Bytes())))
 	}
 
 	var s struct {
@@ -45,19 +55,19 @@ func getToken(clientID, secret string, sandbox bool) (string, error) {
 	}
 	err = json.NewDecoder(resp.Body).Decode(&s)
 	if err != nil {
-		return "", err
+		return "", w(err)
 	}
 
 	if s.Token == "" {
-		return "", errors.New("No access token in response")
+		return "", w(errors.New("No access token in response"))
 	}
 
 	return s.Token, nil
 }
 
 // Send sends money via PayPal.
-func Send(clientID, secret string, amt float64, addr string, sandbox bool) (batchID, status string, err error) {
-	token, err := getToken(clientID, secret, sandbox)
+func Send(txs map[string]float64, sandbox bool) (batchID, status string, err error) {
+	token, err := getToken(sandbox)
 	if err != nil {
 		return "", "", err
 	}
@@ -68,18 +78,19 @@ func Send(clientID, secret string, amt float64, addr string, sandbox bool) (batc
 			EmailSubject:  "subject",
 			EmailMessage:  "message",
 		},
-		Items: []payoutItem{
-			{
-				RecipientType: "EMAIL",
-				Amount: payoutAmount{
-					Currency: "USD",
-					Value:    fmt.Sprintf("%.2f", amt),
-				},
-				Note:         "note",
-				SenderItemID: fmt.Sprintf("%d", time.Now().UnixNano()),
-				Receiver:     addr,
+	}
+
+	for addr, amt := range txs {
+		batch.Items = append(batch.Items, payoutItem{
+			RecipientType: "EMAIL",
+			Amount: payoutAmount{
+				Currency: "USD",
+				Value:    fmt.Sprintf("%.2f", amt),
 			},
-		},
+			Note:         "note",
+			SenderItemID: fmt.Sprintf("%s.%d", addr, time.Now().UnixNano()),
+			Receiver:     addr,
+		})
 	}
 
 	data, err := json.Marshal(batch)

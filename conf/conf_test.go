@@ -22,8 +22,17 @@ func TestRead(t *testing.T) {
 		{true, "", nil, "donate file is not valid JSON"},
 		{true, "foo", nil, "donate file is not valid JSON"},
 		{true, "{\"foo\": \"bar\"}", nil, ErrNoSupportedPaymentType.Error()},
+		{true, "{\"USDC\": \"\"}", nil, ErrNoSupportedPaymentType.Error()},
+		{true, "{\"PayPal\": \"\"}", nil, ErrNoSupportedPaymentType.Error()},
+		{true, "{\"USDC\": \"\", \"PayPal\": \"\"}", nil, ErrNoSupportedPaymentType.Error()},
+
 		{true, "{\"USDC\": \"bonk\"}", nil, "invalid destination address"},
-		{true, "{\"USDC\": \"0x0000000000111111111122222222223333333333\"}", &(Config{USDC: "0x0000000000111111111122222222223333333333"}), ""},
+		{true, "{\"USDC\": \"0x0000000000111111111122222222223333333333\"}",
+			&(Config{USDC: "0x0000000000111111111122222222223333333333"}), ""},
+
+		{true, "{\"PayPal\": \"bonk\"}", &(Config{PayPal: "bonk"}), ""},
+		{true, "{\"PayPal\": \"bonk\", \"USDC\": \"0x0000000000111111111122222222223333333333\"}",
+			&(Config{PayPal: "bonk", USDC: "0x0000000000111111111122222222223333333333"}), ""},
 	}
 
 	for _, t := range tc {

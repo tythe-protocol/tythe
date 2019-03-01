@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/tythe-protocol/go-tythe/coinbase"
 	"github.com/tythe-protocol/go-tythe/conf"
 	"github.com/tythe-protocol/go-tythe/dep"
 	"github.com/tythe-protocol/go-tythe/paypal"
 
 	"github.com/attic-labs/noms/go/d"
 	homedir "github.com/mitchellh/go-homedir"
-	gdax "github.com/preichenberger/go-gdax"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -81,11 +81,39 @@ func payAll(app *kingpin.Application) (c command) {
 		fmt.Printf("Ready to send %.2f?\n", spend)
 		confirmContinue()
 
+		cb := map[string]float64{}
+		pp := map[string]float64{}
+
+		add := func(m map[string]float64, amt float64, addr string) {
+			m[addr] = m[addr] + amt
+		}
+
 		for _, cfg := range tythed {
 			const packageWeight = 1.0
 			amt := spend * packageWeight / totalWeight
-			sendImpl(amt, cfg.USDC, *sandbox)
+			if cfg.PayPal != "" {
+				add(pp, amt, cfg.PayPal)
+			} else if cfg.USDC != "" {
+				add(cb, amt, cfg.USDC)
+			}
 		}
+
+		if len(pp) > 0 {
+			batchID, status, err := paypal.Send(pp, *sandbox)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error from PayPal: %s", err)
+			} else {
+				fmt.Printf("Sent %d PayPal transactions. BatchID: %s, Status: %s.\n", len(pp), batchID, status)
+			}
+		}
+		if len(cb) > 0 {
+			srs := coinbase.Send(cb, *sandbox)
+			fmt.Printf("Sent %d Coinbase transactions:\n", len(srs))
+			for addr, sr := range srs {
+				fmt.Printf("%s: %s\n", addr, sr.String())
+			}
+		}
+
 	}
 
 	return c
@@ -119,8 +147,8 @@ func payOne(app *kingpin.Application) (c command) {
 	c.cmd = app.Command("pay-one", "Pay a single package")
 	sandbox := sandboxFlag(c.cmd)
 	cacheDir := cacheDirFlag(c.cmd)
-	url := c.cmd.Arg("package", "File path or URL of the package to pay.").Required().URL()
 	amount := c.cmd.Arg("amount", "Amount to send to the package (in USD).").Required().Float()
+	url := c.cmd.Arg("package", "File path or URL of the package to pay.").Required().URL()
 
 	c.handler = func() {
 		p, err := resolvePackage(*url, *cacheDir)
@@ -129,17 +157,17 @@ func payOne(app *kingpin.Application) (c command) {
 		config, err := conf.Read(p)
 		d.CheckErrorNoUsage(err)
 		if config == nil {
-			fmt.Printf("no tythe.json for package: %s", (*url).String())
+			fmt.Printf("no donate file for package: %s", (*url).String())
 			return
 		}
 
-		fmt.Printf("Found tythe.json in %s:\n", (*url).String())
+		fmt.Printf("Found donate file in %s:\n", (*url).String())
 		enc := json.NewEncoder(os.Stdout)
 		enc.SetIndent("", "  ")
 		err = enc.Encode(config)
 		d.CheckError(err)
 
-		sendImpl(*amount, config.USDC, *sandbox)
+		sendOneImpl(*amount, "", config.USDC, *sandbox)
 	}
 
 	return
@@ -164,38 +192,36 @@ func send(app *kingpin.Application) (c command) {
 		fmt.Printf("Really send $%f (y/n)?\n", *amount)
 		confirmContinue()
 
+		var pp string
+		var cb string
 		if *paymentType == "PayPal" {
-			batchID, status, err := paypal.Send(getEnv("PAYPAL_CLIENT_ID"), getEnv("PAYPAL_SECRET"), *amount, *address, *sandbox)
-			d.PanicIfError(err)
-			fmt.Printf("%s: %s\n", batchID, status)
+			pp = *address
 		} else {
-			sendImpl(*amount, *address, *sandbox)
+			cb = *address
 		}
+
+		sendOneImpl(*amount, pp, cb, *sandbox)
 	}
 
 	return
 }
 
-func sendImpl(amt float64, addr string, sandbox bool) {
-	key := getEnv("TYTHE_COINBASE_API_KEY")
-	secret := getEnv("TYTHE_COINBASE_API_SECRET")
-	passphrase := getEnv("TYTHE_COINBASE_API_PASSPHRASE")
-
-	client := gdax.NewClient(secret, key, passphrase)
-	if sandbox {
-		client.BaseURL = "https://api-public.sandbox.pro.coinbase.com"
+func sendOneImpl(amt float64, paypalAddress string, usdcAddress string, sandbox bool) {
+	if paypalAddress != "" {
+		batchID, status, err := paypal.Send(map[string]float64{paypalAddress: amt}, sandbox)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failure: %s\n", err.Error())
+			return
+		}
+		fmt.Printf("Success. PayPal Batch ID: %s, Status: %s\n", batchID, status)
+	} else {
+		sr := coinbase.Send(map[string]float64{usdcAddress: amt}, sandbox)[usdcAddress]
+		if sr.Error != nil {
+			fmt.Fprintf(os.Stderr, "Failure: %s\n", sr.Error.Error())
+			return
+		}
+		fmt.Printf("Success. Coinbase Transaction ID: %s\n", sr.TransactionID)
 	}
-	params := map[string]interface{}{
-		"amount":         amt,
-		"currency":       conf.USDC,
-		"crypto_address": addr,
-	}
-
-	var res map[string]interface{}
-	_, err := client.Request("POST", "/withdrawals/crypto", params, &res)
-	d.PanicIfError(err)
-
-	fmt.Printf("All done! Coinbase transaction ID: %s\n", res["id"])
 }
 
 func confirmContinue() {
@@ -206,15 +232,6 @@ func confirmContinue() {
 	if line != "y\n" {
 		os.Exit(0)
 	}
-}
-
-func getEnv(s string) string {
-	v := os.Getenv(s)
-	if v == "" {
-		fmt.Fprintf(os.Stderr, "Could not find required environment variable: %s\n", s)
-		os.Exit(1)
-	}
-	return v
 }
 
 func cacheDirFlag(cmd *kingpin.CmdClause) *string {
