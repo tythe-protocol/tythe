@@ -67,6 +67,9 @@ func getToken(sandbox bool) (string, error) {
 
 // Send sends money via PayPal.
 func Send(txs map[string]float64, sandbox bool) (batchID, status string, err error) {
+	// Remove when out of testing
+	sandbox = true
+
 	token, err := getToken(sandbox)
 	if err != nil {
 		return "", "", err

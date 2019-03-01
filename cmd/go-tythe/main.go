@@ -167,7 +167,7 @@ func payOne(app *kingpin.Application) (c command) {
 		err = enc.Encode(config)
 		d.CheckError(err)
 
-		sendOneImpl(*amount, "", config.USDC, *sandbox)
+		sendOneImpl(*amount, config.PayPal, config.USDC, *sandbox)
 	}
 
 	return
