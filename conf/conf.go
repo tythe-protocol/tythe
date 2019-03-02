@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// PaymentType is a mechanism that go-tythe can use to move money between parties.
+// PaymentType is a mechanism that tythe can use to move money between parties.
 type PaymentType string
 
 const (
@@ -20,7 +20,7 @@ const (
 
 var (
 	// ErrNoSupportedPaymentType is returned by conf.Read() when the config looks valid, but it
-	// doesn't contain a payment type go-tythe supports.
+	// doesn't contain a payment type tythe supports.
 	ErrNoSupportedPaymentType error = errors.New("No supported payment type")
 
 	usdcAddressPattern = regexp.MustCompile("^0x[0-9a-f]{40}$")

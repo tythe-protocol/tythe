@@ -22,7 +22,7 @@ type command struct {
 }
 
 func main() {
-	app := kingpin.New("go-tythe", "A command-line tythe client.")
+	app := kingpin.New("tythe", "A command-line tythe client.")
 
 	commands := []command{
 		payAll(app),
@@ -245,7 +245,7 @@ func cacheDirFlag(cmd *kingpin.CmdClause) *string {
 		os.Exit(1)
 	}
 	return cmd.Flag("cache-dir", "Directory to write cached repos to during crawling").
-		Default(fmt.Sprintf("%s/.go-tythe", hd)).String()
+		Default(fmt.Sprintf("%s/.tythe", hd)).String()
 }
 
 func sandboxFlag(cmd *kingpin.CmdClause) *bool {

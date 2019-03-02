@@ -50,7 +50,7 @@ First, [build it](HACKING.md). Sorry, working on getting binaries automatically 
 ```
 # This splits a tythe of $2 among all the dependencies of <repo-url>
 # For example if you run it with "https://github.com/tythe-protocol/z_test1", it sends $2 to me.
-./go-tythe pay-all 3 <repo-url>
+./tythe pay-all 3 <repo-url>
 ```
 
 # More

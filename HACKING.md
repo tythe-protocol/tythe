@@ -5,6 +5,6 @@
 ```
 git clone https://github.com/tythe-protocol/tythe
 cd tythe
-GO111MODULE=on go build ./cmd/go-tythe
+GO111MODULE=on go build ./cmd/tythe
 GO111MODULE=on go test ./...
 ```
