@@ -1,57 +1,61 @@
 # Overview
 
-The Tythe Protocol is a simple, open, and transparent way for companies to financially support the maintenance of the Open Source Software they rely on.
+Tythe is a simple, open, and transparent way for companies to fund the Open Source software they rely on.
+
+Tythe has no middlemen, no chokepoints, no fees, no contracts, and no opaque division of proceeds.
+
+It's an Open Source-style solution to the Open Source maintenance problem.
 
 # How it Works
 
-### 1. Maintainers add a [`.tythe`](./.tythe) file to the root of their projects
+### 1. Maintainers add a [`.donate`](https://github.com/aboodman/dot-donate) file to the root of their projects
 
-This declares that the maintainer wants to participate, and how to pay them, in a machine-readable format.
+This declares that the projects wants to receive donations (and how those donations should be sent) in a machine-readable format.
 
-### 2. Companies make a public commitment to pay tythes
+### 2. Companies decide an amount to commit to open source
 
-For example, by posting a link to this page to social media.
+We recommend ["Up to 1%* of R&D"](./covenant.md), but it's up to you!
 
-### 3. Maintainers get paid
+### 3. Open Source gets Funded
 
-Companies use any [compatible tool](#tools) to continously monitor their open source dependencies, [calculate the tythe](#the-tythe-calculation) and distribute it. Companies can divide the tythe however they like, but tools will typically provide sensible defaults.
+Companies run Tythe continuously (e.g., as part of their build process). Tythe monitors dependency trees for participating projects and automatically distributes funds to them. Companies can divide funds however they like, but Tythe provide some easy ways to configure.
 
-# The Tythe Calculation
+# Status
 
-The amount a company should tythe is based on that company's annualized R&D budget. The tythe approaches 1% of this value as the portion of participating dependencies increases.
+This is under active development, and is rough around the edges. But it does work!
 
-Specifically:
+Please [contact me](aaron@aaronboodman.com) if you'd like to use it and I'll help you get started.
+
+# Setup
+
+First, [build it](HACKING.md). Sorry, working on getting binaries automatically built.
+
+### Coinbase
+
+1. Create an account at [Coinbase Pro](https://pro.coinbase.com) if you don't already have one
+2. [Create an API key](https://support.pro.coinbase.com/customer/en/portal/articles/2945320-how-do-i-create-an-api-key-for-coinbase-pro-) (all permissions are required)
+3. Set the environment variables:
+  * `TYTHE_COINBASE_API_KEY`
+  * `TYTHE_COINBASE_API_SECRET`
+  * `TYTHE_COINBASE_API_PASSPHRASE`
+4. Deposit some USDC into your Coinbase Pro account
+
+### PayPal
+
+(todo)
+
+
+# Run
 
 ```
-tythe = R&D * 0.01 * tythed_deps / total_deps
-
-R&D:         annualized R&D expenditure
-total_deps:  count of transitive dependencies
-tythed_deps: count of total_deps that contain a .tythe
+# This splits a tythe of $2 among all the dependencies of <repo-url>
+# For example if you run it with "https://github.com/tythe-protocol/z_test1", it sends $2 to me.
+./go-tythe pay-all 3 <repo-url>
 ```
-
-## Example 1
-
- * Your current R&D expenditure: `$2M/yr`
- * Number of transitive dependencies in your tree: `500`
- * Number of transitive dependencies that include `.tythe`: `150`
- 
-Your tythe is: `$2M * 0.01 * 150 / 500 = $6000/year` or `$500/month` or `$3.33/mo/dep`
-
-## Example 2
-
- * Your current R&D expenditure: `$16B/yr`
- * Number of transitive dependencies in your tree: `10k`
- * Number of transitive dependencies that include `.tythe`: `2k`
-
-Your tythe is: `$16B * 0.01 * 2000 / 10000 = $32M/year` or `$2.7M/month` or about `$1.3k/mo/dep`
-
-
-# Tools
-
-* [`go-tythe`](https://github.com/tythe-protocol/go-tythe): The simplest possible CLI client.
 
 # More
 
+* [Hacking on Tythe](hacking.md)
+* [The Tythe Covenant](covenant.md)
 * [About](about.md)
 * [FAQ](faq.md)
