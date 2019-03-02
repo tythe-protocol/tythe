@@ -55,7 +55,7 @@ func TestBasics(t *testing.T) {
 		for _, d := range ds {
 			if strings.HasPrefix(d.Name, "github.com/tythe-protocol/z_test2") {
 				assert.False(foundTest2)
-				assert.Equal("0x1111111111111111111111111111111111111111", d.Conf.USDC)
+				assert.Equal("0x73320b590ba564a70f5bb47c007636b272626df1", d.Conf.USDC)
 				foundTest2 = true
 			}
 		}
