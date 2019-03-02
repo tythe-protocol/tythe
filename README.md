@@ -24,7 +24,7 @@ Companies run Tythe continuously (e.g., as part of their build process). Tythe m
 
 This is under active development, and is rough around the edges. But it does work!
 
-Please [contact me](aaron@aaronboodman.com) if you'd like to use it and I'll help you get started.
+Please contact me (aaron@aaronboodman.com) if you'd like to use it and I'll help you get started.
 
 # Setup
 
@@ -55,7 +55,7 @@ First, [build it](HACKING.md). Sorry, working on getting binaries automatically 
 
 # More
 
-* [Hacking on Tythe](hacking.md)
+* [Hacking on Tythe](HACKING.md)
 * [The Tythe Covenant](covenant.md)
 * [About](about.md)
 * [FAQ](faq.md)
