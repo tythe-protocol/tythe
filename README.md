@@ -16,7 +16,7 @@ This declares that the projects wants to receive donations (and how those donati
 
 We recommend ["Up to 1%* of R&D"](./covenant.md), but it's up to you!
 
-### 3. Open Source gets Funded
+### 3. Open Source gets funded
 
 Companies run Tythe continuously (e.g., as part of their build process). Tythe monitors dependency trees for participating projects and automatically distributes funds to them. Companies can divide funds however they like, but Tythe provide some easy ways to configure.
 
