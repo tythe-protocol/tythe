@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/pkg/errors"
-	"github.com/tythe-protocol/go-tythe/git"
+	"github.com/tythe-protocol/tythe/git"
 )
 
 func resolvePackage(url *url.URL, cacheDir string) (path string, err error) {

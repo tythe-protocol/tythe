@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/tythe-protocol/go-tythe/coinbase"
-	"github.com/tythe-protocol/go-tythe/conf"
-	"github.com/tythe-protocol/go-tythe/dep"
-	"github.com/tythe-protocol/go-tythe/paypal"
+	"github.com/tythe-protocol/tythe/coinbase"
+	"github.com/tythe-protocol/tythe/conf"
+	"github.com/tythe-protocol/tythe/dep"
+	"github.com/tythe-protocol/tythe/paypal"
 
 	"github.com/attic-labs/noms/go/d"
 	homedir "github.com/mitchellh/go-homedir"

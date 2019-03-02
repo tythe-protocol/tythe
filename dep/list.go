@@ -3,10 +3,10 @@ package dep
 import (
 	"fmt"
 
-	"github.com/tythe-protocol/go-tythe/dep/golang"
-	"github.com/tythe-protocol/go-tythe/dep/npm"
+	"github.com/tythe-protocol/tythe/dep/golang"
+	"github.com/tythe-protocol/tythe/dep/npm"
 
-	"github.com/tythe-protocol/go-tythe/conf"
+	"github.com/tythe-protocol/tythe/conf"
 )
 
 // Type represents a dependency "type". For example, Go or npm.

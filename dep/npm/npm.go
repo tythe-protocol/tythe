@@ -9,8 +9,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/tythe-protocol/go-tythe/conf"
-	"github.com/tythe-protocol/go-tythe/dep/shared"
+	"github.com/tythe-protocol/tythe/conf"
+	"github.com/tythe-protocol/tythe/dep/shared"
 
 	homedir "github.com/mitchellh/go-homedir"
 )

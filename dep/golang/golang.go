@@ -10,8 +10,8 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/tythe-protocol/go-tythe/conf"
-	"github.com/tythe-protocol/go-tythe/dep/shared"
+	"github.com/tythe-protocol/tythe/conf"
+	"github.com/tythe-protocol/tythe/dep/shared"
 
 	"github.com/pkg/errors"
 )

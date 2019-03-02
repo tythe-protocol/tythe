@@ -1,7 +1,7 @@
 package shared
 
 import (
-	"github.com/tythe-protocol/go-tythe/conf"
+	"github.com/tythe-protocol/tythe/conf"
 )
 
 type Dep struct {

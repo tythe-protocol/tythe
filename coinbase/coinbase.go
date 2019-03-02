@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	gdax "github.com/preichenberger/go-gdax"
-	"github.com/tythe-protocol/go-tythe/env"
+	"github.com/tythe-protocol/tythe/env"
 )
 
 // SendResult represents the results of sending one individual transaction on Coinbase.

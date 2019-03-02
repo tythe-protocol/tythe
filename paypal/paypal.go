@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tythe-protocol/go-tythe/env"
+	"github.com/tythe-protocol/tythe/env"
 
 	"github.com/pkg/errors"
 )
