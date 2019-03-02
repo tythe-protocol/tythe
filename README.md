@@ -1,6 +1,6 @@
 # Overview
 
-Tythe is a simple, open, and transparent way for companies to fund the Open Source software they rely on.
+Tythe is a simple, open, and transparent way for companies to fund the Open Source Software they rely on.
 
 Tythe has no middlemen, no chokepoints, no fees, no contracts, and no opaque division of proceeds.
 
