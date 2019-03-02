@@ -16,6 +16,11 @@ type PaymentType string
 const (
 	// DonateFile is the name of the dot-donate file (see https://github.com/aboodman/dot-donate).
 	DonateFile string = ".donate"
+
+	PaymentTypeBTC    string = "BTC"
+	PaymentTypePayPal string = "PayPal"
+	PaymentTypeUSDC   string = "USDC"
+	PaymentTypeNone   string = ""
 )
 
 var (
@@ -32,6 +37,30 @@ type Config struct {
 	BTC    string `json:"BTC,omitempty"`
 	PayPal string `json:"PayPal,omitempty"`
 	USDC   string `json:"USDC,omitempty"`
+}
+
+func (c Config) PreferredPaymentType() string {
+	switch {
+	case c.BTC != "":
+		return PaymentTypeBTC
+	case c.USDC != "":
+		return PaymentTypeUSDC
+	case c.PayPal != "":
+		return PaymentTypePayPal
+	}
+	return PaymentTypeNone
+}
+
+func (c Config) AddressForType(paymentType string) string {
+	switch paymentType {
+	case PaymentTypeBTC:
+		return c.BTC
+	case PaymentTypePayPal:
+		return c.PayPal
+	case PaymentTypeUSDC:
+		return c.USDC
+	}
+	return ""
 }
 
 // Read loads the Config of a package if there is one. Returns nil, nil if no config.

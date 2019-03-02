@@ -171,7 +171,7 @@ func payOne(app *kingpin.Application) (c command) {
 		config, err := conf.Read(p)
 		d.CheckErrorNoUsage(err)
 		if config == nil {
-			fmt.Printf("no donate file for package: %s", (*url).String())
+			fmt.Printf("no donate file for package: %s\n", (*url).String())
 			return
 		}
 
@@ -181,7 +181,9 @@ func payOne(app *kingpin.Application) (c command) {
 		err = enc.Encode(config)
 		d.CheckError(err)
 
-		sendOneImpl(*amount, config.PayPal, config.USDC, *sandbox)
+		pt := config.PreferredPaymentType()
+		addr := config.AddressForType(pt)
+		sendOneImpl(*amount, pt, addr, *sandbox)
 	}
 
 	return
