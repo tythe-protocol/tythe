@@ -19,6 +19,6 @@ script:
   - git clone https://github.com/tythe-protocol/z_test3
   - cd z_test3
   - go build
-  - cd ../go-tythe
+  - cd ../tythe
   - go build ./...
   - go test ./...
