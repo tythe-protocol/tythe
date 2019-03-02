@@ -38,7 +38,7 @@ First, [build it](HACKING.md). Sorry, working on getting binaries automatically 
   * `TYTHE_COINBASE_API_KEY`
   * `TYTHE_COINBASE_API_SECRET`
   * `TYTHE_COINBASE_API_PASSPHRASE`
-4. Deposit some USDC into your Coinbase Pro account
+4. Deposit some USDC and BTC into your Coinbase Pro account
 
 ### PayPal
 
