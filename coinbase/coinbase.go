@@ -51,12 +51,14 @@ func Send(txs map[string]Amount, sandbox bool) (map[string]SendResult, error) {
 	ret := map[string]SendResult{}
 	for addr, amt := range txs {
 		v := amt.Value
+		prec := 2
 		if amt.Currency == "BTC" {
 			v /= btcPrice
+			prec = 8
 		}
 
 		params := map[string]string{
-			"amount":         fmt.Sprintf("%.6f", v),
+			"amount":         fmt.Sprintf("%."+strconv.Itoa(prec)+"f", v),
 			"currency":       amt.Currency,
 			"crypto_address": addr,
 		}
