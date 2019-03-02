@@ -77,19 +77,26 @@ func payAll(app *kingpin.Application) (c command) {
 		fmt.Printf("Ready to send %.2f?\n", spend)
 		confirmContinue()
 
-		cb := map[string]float64{}
+		cb := map[string]coinbase.Amount{}
 		pp := map[string]float64{}
-
-		add := func(m map[string]float64, amt float64, addr string) {
-			m[addr] = m[addr] + amt
-		}
 
 		for _, cfg := range tythed {
 			amt := spend / float64(len(tythed))
 			if cfg.PayPal != "" {
-				add(pp, amt, cfg.PayPal)
-			} else if cfg.USDC != "" {
-				add(cb, amt, cfg.USDC)
+				pp[cfg.PayPal] += amt
+			} else {
+				addr := cfg.USDC
+				typ := "USDC"
+				if addr == "" {
+					addr = cfg.BTC
+					typ = "BTC"
+				}
+				a, ok := cb[addr]
+				if !ok {
+					a = coinbase.Amount{Currency: typ}
+				}
+				a.Value = amt
+				cb[addr] = a
 			}
 		}
 
@@ -110,10 +117,13 @@ func payAll(app *kingpin.Application) (c command) {
 
 		if len(cb) > 0 {
 			fmt.Println()
-			srs := coinbase.Send(cb, *sandbox)
+			srs, err := coinbase.Send(cb, *sandbox)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error from Coinbase: %s", err)
+			}
 			fmt.Printf("Sent %d Coinbase transactions:\n", len(srs))
 			for addr, sr := range srs {
-				fmt.Printf("%s (%.2f): %s\n", addr, cb[addr], sr.String())
+				fmt.Printf("%s (%.2f): %s\n", addr, cb[addr].Value, sr.String())
 			}
 			fmt.Println()
 		}
@@ -180,12 +190,13 @@ func payOne(app *kingpin.Application) (c command) {
 func send(app *kingpin.Application) (c command) {
 	c.cmd = app.Command("send", "Sends money to the specified address (for testing/development)")
 	sandbox := sandboxFlag(c.cmd)
-	paymentType := c.cmd.Arg("type", "Payment type to use").Required().HintOptions("PayPal", "USDC").String()
+	paymentType := c.cmd.Arg("type", "Payment type to use").Required().HintOptions("BTC", "PayPal", "USDC").String()
 	address := c.cmd.Arg("address", "Address to send to.").Required().String()
 	amount := c.cmd.Arg("amount", "Amount to send (in USD).").Required().Float()
 
 	c.handler = func() {
-		// TODO: validate paypal
+		// TODO: validate paypal, bitcoin addresses
+
 		if *paymentType == "USDC" && !conf.ValidUSDCAddress(*address) {
 			fmt.Fprintln(os.Stderr, "Invalid USDC address")
 			// TODO: refactor exit handling
@@ -193,33 +204,32 @@ func send(app *kingpin.Application) (c command) {
 			return
 		}
 
-		fmt.Printf("Really send $%f (y/n)?\n", *amount)
+		fmt.Printf("Really send $%.2f (y/n)?\n", *amount)
 		confirmContinue()
 
-		var pp string
-		var cb string
-		if *paymentType == "PayPal" {
-			pp = *address
-		} else {
-			cb = *address
-		}
-
-		sendOneImpl(*amount, pp, cb, *sandbox)
+		sendOneImpl(*amount, *paymentType, *address, *sandbox)
 	}
 
 	return
 }
 
-func sendOneImpl(amt float64, paypalAddress string, usdcAddress string, sandbox bool) {
-	if paypalAddress != "" {
-		batchID, status, err := paypal.Send(map[string]float64{paypalAddress: amt}, sandbox)
+func sendOneImpl(amt float64, paymentType string, address string, sandbox bool) {
+	if paymentType == "PayPal" {
+		batchID, status, err := paypal.Send(map[string]float64{address: amt}, sandbox)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Failure: %s\n", err.Error())
 			return
 		}
 		fmt.Printf("Success. PayPal Batch ID: %s, Status: %s\n", batchID, status)
 	} else {
-		sr := coinbase.Send(map[string]float64{usdcAddress: amt}, sandbox)[usdcAddress]
+		srs, err := coinbase.Send(
+			map[string]coinbase.Amount{address: coinbase.Amount{Currency: paymentType, Value: amt}},
+			sandbox)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failure: %s\n", err.Error())
+			return
+		}
+		sr := srs[address]
 		if sr.Error != nil {
 			fmt.Fprintf(os.Stderr, "Failure: %s\n", sr.Error.Error())
 			return

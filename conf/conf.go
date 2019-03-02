@@ -29,8 +29,9 @@ var (
 // Config describes the json metadata developers add to their package to opt-in
 // to receiving tythes.
 type Config struct {
-	USDC   string `json:"USDC,omitempty"`
+	BTC    string `json:"BTC,omitempty"`
 	PayPal string `json:"PayPal,omitempty"`
+	USDC   string `json:"USDC,omitempty"`
 }
 
 // Read loads the Config of a package if there is one. Returns nil, nil if no config.
@@ -55,9 +56,11 @@ func Read(dir string) (*Config, error) {
 		return nil, w(errors.Wrap(err, "donate file is not valid JSON"))
 	}
 
-	if c.USDC == "" && c.PayPal == "" {
+	if c.BTC == "" && c.PayPal == "" && c.USDC == "" {
 		return nil, ErrNoSupportedPaymentType
 	}
+
+	// TODO: Test BTC address validity? Or can we rely on Coinbase (in which case, remove below)
 
 	if c.USDC != "" && !ValidUSDCAddress(c.USDC) {
 		return nil, fmt.Errorf("invalid destination address in donate file: \"%s\"", c.USDC)

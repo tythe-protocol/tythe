@@ -2,6 +2,7 @@ package coinbase
 
 import (
 	"fmt"
+	"strconv"
 
 	gdax "github.com/preichenberger/go-gdax"
 	"github.com/tythe-protocol/tythe/env"
@@ -21,8 +22,18 @@ func (sr SendResult) String() string {
 	}
 }
 
+// An Amount to send with Send.
+type Amount struct {
+	// Currency is the type of currency to send.
+	Currency string
+
+	// Value is always denominated in USD(C). If Currency is other, then it
+	// will be converted before send.
+	Value float64
+}
+
 // Send sends money via Coinbase.
-func Send(txs map[string]float64, sandbox bool) map[string]SendResult {
+func Send(txs map[string]Amount, sandbox bool) (map[string]SendResult, error) {
 	key := env.Must("TYTHE_COINBASE_API_KEY")
 	secret := env.Must("TYTHE_COINBASE_API_SECRET")
 	passphrase := env.Must("TYTHE_COINBASE_API_PASSPHRASE")
@@ -32,11 +43,21 @@ func Send(txs map[string]float64, sandbox bool) map[string]SendResult {
 		client.BaseURL = "https://api-public.sandbox.pro.coinbase.com"
 	}
 
+	btcPrice, err := btcUSD(client)
+	if err != nil {
+		return nil, err
+	}
+
 	ret := map[string]SendResult{}
 	for addr, amt := range txs {
+		v := amt.Value
+		if amt.Currency == "BTC" {
+			v /= btcPrice
+		}
+
 		params := map[string]string{
-			"amount":         fmt.Sprintf("%.2f", amt),
-			"currency":       "USDC",
+			"amount":         fmt.Sprintf("%.6f", v),
+			"currency":       amt.Currency,
 			"crypto_address": addr,
 		}
 
@@ -54,5 +75,13 @@ func Send(txs map[string]float64, sandbox bool) map[string]SendResult {
 		ret[addr] = sr
 	}
 
-	return ret
+	return ret, nil
+}
+
+func btcUSD(c *gdax.Client) (float64, error) {
+	t, err := c.GetTicker("BTC-USD")
+	if err != nil {
+		return 0, err
+	}
+	return strconv.ParseFloat(t.Price, 64)
 }
