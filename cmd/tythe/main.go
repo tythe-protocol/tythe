@@ -81,22 +81,18 @@ func payAll(app *kingpin.Application) (c command) {
 		pp := map[string]float64{}
 
 		for _, cfg := range tythed {
-			amt := spend / float64(len(tythed))
+			value := spend / float64(len(tythed))
 			if cfg.PayPal != "" {
-				pp[cfg.PayPal] += amt
+				pp[cfg.PayPal] += value
 			} else {
-				addr := cfg.USDC
-				typ := "USDC"
-				if addr == "" {
-					addr = cfg.BTC
-					typ = "BTC"
-				}
-				a, ok := cb[addr]
+				pt := cfg.PreferredPaymentType()
+				addr := cfg.AddressForType(pt)
+				amt, ok := cb[addr]
 				if !ok {
-					a = coinbase.Amount{Currency: typ}
+					amt = coinbase.Amount{Currency: pt}
 				}
-				a.Value = amt
-				cb[addr] = a
+				amt.Value = value
+				cb[addr] = amt
 			}
 		}
 
