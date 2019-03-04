@@ -9,6 +9,7 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/preichenberger/go-gdax v0.0.0-20190207020012-a72ddaa0b1fa
 	github.com/stretchr/testify v1.2.2
+	github.com/ua-parser/uap-go v0.0.0-20190303233514-1004ccd816b3
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/src-d/go-git.v4 v4.9.1
 )

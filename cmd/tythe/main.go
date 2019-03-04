@@ -4,12 +4,14 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/tythe-protocol/tythe/coinbase"
 	"github.com/tythe-protocol/tythe/conf"
 	"github.com/tythe-protocol/tythe/dep"
 	"github.com/tythe-protocol/tythe/paypal"
+	"github.com/ua-parser/uap-go/uaparser"
 
 	"github.com/attic-labs/noms/go/d"
 	homedir "github.com/mitchellh/go-homedir"
@@ -25,6 +27,7 @@ func main() {
 	app := kingpin.New("tythe", "A command-line tythe client.")
 
 	commands := []command{
+		serve(app),
 		payAll(app),
 		payOne(app),
 		send(app),
@@ -38,6 +41,20 @@ func main() {
 			break
 		}
 	}
+}
+
+func serve(app *kingpin.Application) (c command) {
+	c.cmd = app.Command("serve", "Serves the tythe.dev UI")
+	c.handler = func() {
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			parser, err := uaparser.New("/Users/aa/Desktop/regexes.yaml.txt")
+			d.PanicIfError(err)
+			c := parser.Parse(r.UserAgent())
+			w.Write([]byte(fmt.Sprintf("Welcome to Tythe.\n\nYour user agent is: %+v", *c.UserAgent)))
+		})
+		http.ListenAndServe(":8080", nil)
+	}
+	return c
 }
 
 func payAll(app *kingpin.Application) (c command) {
@@ -140,7 +157,7 @@ func list(app *kingpin.Application) (c command) {
 
 		deps, err := dep.List(dir)
 		d.CheckErrorNoUsage(err)
-
+		fmt.Println("hi")
 		for _, d := range deps {
 			addr := "<no tythe>"
 			if d.Conf != nil {
