@@ -1,24 +1,31 @@
 language: go
 go:
-  - 1.11.x
+- 1.11.x
 os:
-  - linux
-  - osx
+- linux
+- osx
 env:
-  - GO111MODULE=on
+- GO111MODULE=on
 script:
-  - cd ../
-  - git clone https://github.com/tythe-protocol/z_test1
-  - cd z_test1
-  - go build
-  - cd ../
-  - git clone https://github.com/tythe-protocol/z_test2
-  - cd z_test2
-  - go build
-  - cd ../
-  - git clone https://github.com/tythe-protocol/z_test3
-  - cd z_test3
-  - go build
-  - cd ../tythe
-  - go build ./...
-  - go test ./...
+- cd ../
+- git clone https://github.com/tythe-protocol/z_test1
+- cd z_test1
+- go build
+- cd ../
+- git clone https://github.com/tythe-protocol/z_test2
+- cd z_test2
+- go build
+- cd ../
+- git clone https://github.com/tythe-protocol/z_test3
+- cd z_test3
+- go build
+- cd ../tythe
+- go build ./...
+- go test ./...
+deploy:
+  provider: releases
+  api_key:
+    secure: IdMvEAiDi4S5ynrLos4M3tc0PEcFvhoCGH+O/uyeNU+88CL9zAM8SH5wpibQyk6aUv9m0ix06+LO15LvcmdsBwoYb4+lo3E9tRboVVQI1M02rsOZzb9NdxHUkcb0mSzFKInkrT5Ps74YbDb6bl8jqf7S9M/YfhN3K3DBQgn8wek+ZVx7xE7o0q1z8yueZ1cjIkFNkIn80idktpLoPXIDQIgFcT/2Z4WBPu8DSetZPfDmmDIS1Zr7JqJ7o+xlbj9zZIO11fmq7n3ezqSveymqVb9ePY+o8PbBtqfxOXFtcLpHpwXHWVsXsD8N4DOVQewGGxPZfPkc91MFf/YScvuUQNPJS/Cd7/VsxIe4KseP5OAdbLxdF5aom5d03PRvI0Lgs1jIDmd+VurNjmV6vZVY9AdruYEipKYWnYtraS00++91z83hlmAo9nW2m/7EXdSqdgyQjxI1pmmBwaiPPaA+lZN1I/uPPx2FiaXfN1pNRo9r2ahxUiJw5Cm5z96ueXH8eTrSw5Ehgukiz3OyQ7ExyFQRReGO5WRm3EPBLygbCDuLphV2K/VyZSXNU5Km7sERyJlmh9Fgh+bQdMJuTeHlI98utOGbl/m1GYu6Pg+q0qML4d5JzDjzvS+jInQv3smrZw6+y20uwInfX/FsEQfQTMcdMDQpuJebGVM5Z0ftXFI=
+  file: "./cmd/tythe"
+  on:
+    repo: tythe-protocol/tythe
