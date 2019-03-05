@@ -28,7 +28,7 @@ var (
 	// doesn't contain a payment type tythe supports.
 	ErrNoSupportedPaymentType error = errors.New("No supported payment type")
 
-	usdcAddressPattern = regexp.MustCompile("^0x[0-9a-f]{40}$")
+	usdcAddressPattern = regexp.MustCompile("^0x[0-9a-fA-F]{40}$")
 )
 
 // Config describes the json metadata developers add to their package to opt-in
