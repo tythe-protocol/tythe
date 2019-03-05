@@ -2,7 +2,7 @@
 
 ***The Tythe Covenant*** is our recommendation for how much companies *should* commit to open source.
 
-It is based on a company's annualized R&D budget. The tythe approaches 1% of this value as the portion of participating dependencies increases.
+The covenant is based on a company's annualized R&D budget. It approaches 1% of this value as the portion of participating dependencies increases.
 
 Specifically:
 
