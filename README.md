@@ -28,7 +28,7 @@ Please contact me (aaron@aaronboodman.com) if you'd like to use it and I'll help
 
 # Setup
 
-First, [Download the latest release](./releases).
+First, [Download the latest release](../../releases).
 
 Next, setup payments:
 
