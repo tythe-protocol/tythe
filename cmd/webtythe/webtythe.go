@@ -17,6 +17,7 @@ func main() {
 	app.Parse(os.Args[1:])
 
 	http.HandleFunc("/-/list", list(*cacheDir))
+	http.HandleFunc("/-/ua", ua)
 	http.Handle("/", http.FileServer(ui.Fs))
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {

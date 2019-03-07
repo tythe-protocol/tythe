@@ -39,13 +39,13 @@ func (t Type) String() string {
 // Dep describes a dependency (direct or indirect) of a root package.
 type Dep struct {
 	// Type is the type of dependency.
-	Type Type
+	Type Type `json:"type"`
 
 	// Name is a human-readable name for the dependency.
-	Name string
+	Name string `json:"name"`
 
 	// Conf is the Tythe config for the dependency, or nil if there is none.
-	Conf *conf.Config
+	Conf *conf.Config `json:"config"`
 }
 
 func (d Dep) String() string {

@@ -5336,5 +5336,5 @@ device_parsers:
     regex_flag: 'i'
     device_replacement: 'Generic Feature Phone'
     brand_replacement: 'Generic'
-	model_replacement: 'Feature Phone'
+    model_replacement: 'Feature Phone'
 `)

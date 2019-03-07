@@ -1,5 +1,8 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+
 import Home from './home.js';
+import List from './list.js';
 
 export default class App extends Component {
   render() {
@@ -11,8 +14,22 @@ export default class App extends Component {
           fontWeight: 800,
           color: "#444",
         }}>tythe<span style={{color:"#aaa"}}>.dev</span></header>
-        <Home/>
+        <div style={{margin: "1em 6em 1em", color: "#444"}}>
+          {content(this.props.url)}
+        </div>
       </div>
     );
   }
+}
+
+App.propTypes = {
+  url: PropTypes.instanceOf(URL).isRequired,
+};
+
+function content(url) {
+  const list = url.searchParams.get("list");
+  if (list) {
+    return <List repo={list}/>
+  }
+  return <Home/>;
 }
