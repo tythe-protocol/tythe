@@ -15,6 +15,6 @@ cd cmd/tythe/ui
 npm run start # serves UI on :3000
 
 # Release
-./build-release.sh
+./release.sh
 ./tythe serve # serves API and UI on 8080
 ```
