@@ -1,5 +1,10 @@
 [![Build Status](https://travis-ci.com/tythe-protocol/tythe.svg?branch=master)](https://travis-ci.com/tythe-protocol/tythe)
 
+# Dependencies
+
+* Go 1.11+
+* Node 10+
+
 # Get the Code
 
 ```
@@ -15,11 +20,18 @@ Tythe uses Go modules. Either check out to some directory ***other than GOPATH**
 
 ```
 go test ./...
-go build -tags 'dev' ./cmd/tythe
+go build ./cmd/tythe
 ./tythe
 ```
 
 # Build the Server
+
+### Only needed the first time
+
+```
+cd cmd/webtythe/ui
+npm install
+```
 
 ### Development
 
@@ -40,7 +52,7 @@ npm run start
 
 ```
 cd cmd/webtythe
-./buildprod.sh
+./build-prod.sh
 
 # Runs the API and UI on :8080
 ./webtythe
