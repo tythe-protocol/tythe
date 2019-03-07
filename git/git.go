@@ -3,6 +3,7 @@ package git
 import (
 	"crypto/sha1"
 	"encoding/hex"
+	"fmt"
 	"net/url"
 	"os"
 	"path"
@@ -53,4 +54,24 @@ func Clone(url *url.URL, dataPath string) (rootPath string, err error) {
 		Depth: 1,
 	})
 	return fullPath, err
+}
+
+// Resolve resolves a URL to a local or remote git repository to one that is local.
+func Resolve(url *url.URL, cacheDir string) (path string, err error) {
+	if url.Scheme == "" {
+		path = url.String()
+		_, err := os.Stat(path)
+		if err != nil {
+			if os.IsNotExist(err) {
+				err = fmt.Errorf("Directory does not exist: %s", path)
+			}
+			return "", errors.Wrapf(err, "Could not resolve package: %s", url.String())
+		}
+	} else {
+		path, err = Clone(url, cacheDir)
+		if err != nil {
+			return "", err
+		}
+	}
+	return
 }

@@ -37,7 +37,7 @@ func TestBasics(t *testing.T) {
 		{zTest1, false, 4, true},
 		{zTest2, false, 0, false},
 		{"not-exist", true, 0, false},
-		{root, false, 39, false},
+		{root, false, 37, false},
 	}
 
 	for _, t := range tc {

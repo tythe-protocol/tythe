@@ -4,17 +4,16 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 
+	"github.com/tythe-protocol/tythe/cmd/flags"
 	"github.com/tythe-protocol/tythe/coinbase"
 	"github.com/tythe-protocol/tythe/conf"
 	"github.com/tythe-protocol/tythe/dep"
+	"github.com/tythe-protocol/tythe/git"
 	"github.com/tythe-protocol/tythe/paypal"
-	"github.com/ua-parser/uap-go/uaparser"
 
 	"github.com/attic-labs/noms/go/d"
-	homedir "github.com/mitchellh/go-homedir"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -27,7 +26,6 @@ func main() {
 	app := kingpin.New("tythe", "A command-line tythe client.")
 
 	commands := []command{
-		serve(app),
 		payAll(app),
 		payOne(app),
 		send(app),
@@ -43,24 +41,10 @@ func main() {
 	}
 }
 
-func serve(app *kingpin.Application) (c command) {
-	c.cmd = app.Command("serve", "Serves the tythe.dev UI")
-	c.handler = func() {
-		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			parser, err := uaparser.New("/Users/aa/Desktop/regexes.yaml.txt")
-			d.PanicIfError(err)
-			c := parser.Parse(r.UserAgent())
-			w.Write([]byte(fmt.Sprintf("Welcome to Tythe.\n\nYour user agent is: %+v", *c.UserAgent)))
-		})
-		http.ListenAndServe(":8080", nil)
-	}
-	return c
-}
-
 func payAll(app *kingpin.Application) (c command) {
 	c.cmd = app.Command("pay-all", "Pay tythes for listed packages and their transitive dependencies")
-	cacheDir := cacheDirFlag(c.cmd)
-	sandbox := sandboxFlag(c.cmd)
+	cacheDir := flags.CacheDir(c.cmd)
+	sandbox := flags.Sandbox(c.cmd)
 	totalAmount := c.cmd.Arg("totalAmount", "amount to divide amongst the dependent packages").Required().Float64()
 	roots := c.cmd.Arg("package", "one or more root packages to crawl").Required().URLList()
 
@@ -69,7 +53,7 @@ func payAll(app *kingpin.Application) (c command) {
 		totalDeps := 0
 
 		for _, r := range *roots {
-			p, err := resolvePackage(r, *cacheDir)
+			p, err := git.Resolve(r, *cacheDir)
 			d.CheckErrorNoUsage(err)
 
 			ds, err := dep.List(p)
@@ -148,16 +132,16 @@ func payAll(app *kingpin.Application) (c command) {
 
 func list(app *kingpin.Application) (c command) {
 	c.cmd = app.Command("list", "List transitive dependencies of a package")
-	cacheDir := cacheDirFlag(c.cmd)
+	cacheDir := flags.CacheDir(c.cmd)
 	url := c.cmd.Arg("package", "File path or URL of the package to list.").Required().URL()
 
 	c.handler = func() {
-		dir, err := resolvePackage(*url, *cacheDir)
+		dir, err := git.Resolve(*url, *cacheDir)
 		d.CheckErrorNoUsage(err)
 
 		deps, err := dep.List(dir)
 		d.CheckErrorNoUsage(err)
-		fmt.Println("hi")
+
 		for _, d := range deps {
 			addr := "<no tythe>"
 			if d.Conf != nil {
@@ -172,13 +156,13 @@ func list(app *kingpin.Application) (c command) {
 
 func payOne(app *kingpin.Application) (c command) {
 	c.cmd = app.Command("pay-one", "Pay a single package")
-	sandbox := sandboxFlag(c.cmd)
-	cacheDir := cacheDirFlag(c.cmd)
+	sandbox := flags.Sandbox(c.cmd)
+	cacheDir := flags.CacheDir(c.cmd)
 	amount := c.cmd.Arg("amount", "Amount to send to the package (in USD).").Required().Float()
 	url := c.cmd.Arg("package", "File path or URL of the package to pay.").Required().URL()
 
 	c.handler = func() {
-		p, err := resolvePackage(*url, *cacheDir)
+		p, err := git.Resolve(*url, *cacheDir)
 		d.CheckErrorNoUsage(err)
 
 		config, err := conf.Read(p)
@@ -204,7 +188,7 @@ func payOne(app *kingpin.Application) (c command) {
 
 func send(app *kingpin.Application) (c command) {
 	c.cmd = app.Command("send", "Sends money to the specified address (for testing/development)")
-	sandbox := sandboxFlag(c.cmd)
+	sandbox := flags.Sandbox(c.cmd)
 	paymentType := c.cmd.Arg("type", "Payment type to use").Required().HintOptions("BTC", "PayPal", "USDC").String()
 	address := c.cmd.Arg("address", "Address to send to.").Required().String()
 	amount := c.cmd.Arg("amount", "Amount to send (in USD).").Required().Float()
@@ -261,18 +245,4 @@ func confirmContinue() {
 	if line != "y\n" {
 		os.Exit(0)
 	}
-}
-
-func cacheDirFlag(cmd *kingpin.CmdClause) *string {
-	hd, err := homedir.Dir()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(1)
-	}
-	return cmd.Flag("cache-dir", "Directory to write cached repos to during crawling").
-		Default(fmt.Sprintf("%s/.tythe", hd)).String()
-}
-
-func sandboxFlag(cmd *kingpin.CmdClause) *bool {
-	return cmd.Flag("sandbox", "Use the sandbox Coinbase API").Default("false").Bool()
 }
