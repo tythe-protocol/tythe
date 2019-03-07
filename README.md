@@ -28,7 +28,9 @@ Please contact me (aaron@aaronboodman.com) if you'd like to use it and I'll help
 
 # Setup
 
-First, [build it](HACKING.md). Sorry, working on getting binaries automatically built.
+First, [Download the latest release](../../releases).
+
+Next, setup payments:
 
 ### Coinbase
 
