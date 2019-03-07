@@ -14,7 +14,7 @@ GO111MODULE=on go test ./...
 cd cmd/tythe/ui
 npm run start # serves UI on :3000
 
-# Release
-./release.sh
+# Production
+./build-prod.sh
 ./tythe serve # serves API and UI on 8080
 ```
