@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
@@ -17,5 +18,8 @@ func main() {
 
 	http.HandleFunc("/-/list", list(*cacheDir))
 	http.Handle("/", http.FileServer(ui.Fs))
-	http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+	}
 }

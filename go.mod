@@ -9,9 +9,9 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/preichenberger/go-gdax v0.0.0-20190207020012-a72ddaa0b1fa
 	github.com/shurcooL/httpfs v0.0.0-20181222201310-74dc9339e414 // indirect
-	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd
+	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd // indirect
 	github.com/stretchr/testify v1.2.2
-	golang.org/x/tools v0.0.0-20190306162903-69e0dcfa1121 // indirect
+	golang.org/x/net v0.0.0-20190213061140-3a22650c66bd // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/src-d/go-git.v4 v4.9.1
 )
