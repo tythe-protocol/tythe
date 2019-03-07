@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.com/tythe-protocol/tythe.svg?branch=master)](https://travis-ci.com/tythe-protocol/tythe)
 
-# Get the code
+# Get the Code
 
 ```
 git clone https://github.com/tythe-protocol/tythe
