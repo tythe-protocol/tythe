@@ -46,7 +46,11 @@ func backupGoMod(p string) (string, error) {
 
 func restoreGoMod(p string, tfn string) error {
 	if tfn == "" {
-		return w(os.Remove("go.mod"), p)
+		err := os.Remove("go.mod")
+		if err != nil && !os.IsNotExist(err) {
+			return err
+		}
+		return nil
 	}
 
 	goMod, err := os.Create("go.mod")
