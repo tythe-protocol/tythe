@@ -11,9 +11,11 @@ export default class App extends Component {
         <header style={{
           padding: "3em 3em 2em",
           fontSize: " 2em",
+        }}><a href="/" style={{
+          color:"#444",
+          textDecoration: "none",
           fontWeight: 800,
-          color: "#444",
-        }}>tythe<span style={{color:"#aaa"}}>.dev</span></header>
+        }}>tythe<span style={{color:"#aaa"}}>.dev</span></a></header>
         <div style={{margin: "1em 6em 1em", color: "#444"}}>
           {content(this.props.url)}
         </div>
