@@ -8,8 +8,6 @@ require (
 	github.com/mitchellh/go-homedir v1.0.0
 	github.com/pkg/errors v0.8.1
 	github.com/preichenberger/go-gdax v0.0.0-20190207020012-a72ddaa0b1fa
-	github.com/shurcooL/httpfs v0.0.0-20181222201310-74dc9339e414 // indirect
-	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd // indirect
 	github.com/stretchr/testify v1.2.2
 	github.com/ua-parser/uap-go v0.0.0-20190303233514-1004ccd816b3
 	golang.org/x/net v0.0.0-20190213061140-3a22650c66bd // indirect

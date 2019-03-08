@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	ppath "path"
+	"path/filepath"
 	"runtime"
 	"strings"
 
@@ -85,12 +86,19 @@ func searchDirs(path string) ([]string, error) {
 		return nil, err
 	}
 
+	path, err = filepath.Abs(path)
+	if err != nil {
+		return nil, err
+	}
+
 	for path != "" {
 		dir, leaf := ppath.Split(path)
-		if leaf == "node_modules" {
-			continue
+		if len(dir) > 0 {
+			dir = dir[:len(dir)-1]
 		}
-		dirs = append(dirs, path)
+		if leaf != "node_modules" {
+			dirs = append(dirs, path)
+		}
 		path = dir
 	}
 
