@@ -67,6 +67,7 @@ func Resolve(url *url.URL, cacheDir string) (path string, err error) {
 			}
 			return "", errors.Wrapf(err, "Could not resolve package: %s", url.String())
 		}
+		// TODO: Probably want to copy to a temporary directory to avoid modifying target dir.
 	} else {
 		path, err = Clone(url, cacheDir)
 		if err != nil {

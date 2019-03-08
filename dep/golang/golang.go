@@ -4,8 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
@@ -20,55 +18,6 @@ func w(err error, path string) error {
 	return errors.Wrapf(err, "Cannot list go dependencies of package: %s", path)
 }
 
-func backupGoMod(p string) (string, error) {
-	goMod, err := os.Open("go.mod")
-	if err != nil && !os.IsNotExist(err) {
-		return "", w(err, p)
-	}
-	if goMod == nil {
-		return "", nil
-	}
-	defer goMod.Close()
-
-	tf, err := ioutil.TempFile("", "")
-	if err != nil {
-		return "", w(err, p)
-	}
-	defer tf.Close()
-
-	_, err = io.Copy(tf, goMod)
-	if err != nil {
-		return "", w(err, p)
-	}
-
-	return tf.Name(), nil
-}
-
-func restoreGoMod(p string, tfn string) error {
-	if tfn == "" {
-		err := os.Remove("go.mod")
-		if err != nil && !os.IsNotExist(err) {
-			return err
-		}
-		return nil
-	}
-
-	goMod, err := os.Create("go.mod")
-	if err != nil {
-		return w(err, p)
-	}
-	defer goMod.Close()
-
-	tf, err := os.Open(tfn)
-	defer tf.Close()
-	if err != nil {
-		return w(err, p)
-	}
-
-	_, err = io.Copy(goMod, tf)
-	return w(err, p)
-}
-
 // List returns all the transitive Go dependencies of the package at <path>
 func List(path string) (r []shared.Dep, err error) {
 	// It would be cool to use https://golang.org/src/cmd/go/internal/modload/
@@ -79,18 +28,6 @@ func List(path string) (r []shared.Dep, err error) {
 	}
 
 	defer os.Chdir("-")
-
-	backup, err := backupGoMod(path)
-	if err != nil {
-		return nil, err
-	}
-
-	defer func() {
-		err = restoreGoMod(path, backup)
-		if err != nil {
-			r = nil
-		}
-	}()
 
 	_, err = exec.Command("go", "mod", "tidy").Output()
 	if err != nil {
