@@ -3,6 +3,7 @@ package conf
 import (
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path"
 	"testing"
 
@@ -19,14 +20,14 @@ func TestRead(t *testing.T) {
 		err       string
 	}{
 		{false, "", nil, ""},
-		{true, "", nil, "donate file is not valid JSON"},
-		{true, "foo", nil, "donate file is not valid JSON"},
+		{true, "", nil, "Could not parse donate file"},
+		{true, "foo", nil, "Could not parse donate file"},
 		{true, "{\"foo\": \"bar\"}", nil, ErrNoSupportedPaymentType.Error()},
 		{true, "{\"USDC\": \"\"}", nil, ErrNoSupportedPaymentType.Error()},
 		{true, "{\"PayPal\": \"\"}", nil, ErrNoSupportedPaymentType.Error()},
 		{true, "{\"USDC\": \"\", \"PayPal\": \"\"}", nil, ErrNoSupportedPaymentType.Error()},
 
-		{true, "{\"USDC\": \"bonk\"}", nil, "invalid destination address"},
+		{true, "{\"USDC\": \"bonk\"}", nil, "Invalid destination address"},
 		{true, "{\"USDC\": \"0x0000000000111111111122222222223333333333\"}",
 			&(Config{USDC: "0x0000000000111111111122222222223333333333"}), ""},
 
@@ -50,6 +51,16 @@ func TestRead(t *testing.T) {
 			_, err = f.Seek(0, 0)
 			assert.NoError(err)
 		}
+
+		run := func(args ...string) {
+			cmd := exec.Command(args[0], args[1:]...)
+			cmd.Dir = d
+			assert.NoError(cmd.Run())
+		}
+
+		run("git", "init")
+		run("git", "add", "*")
+		run("git", "commit", "-m", "foo")
 
 		c, err := Read(d)
 		assert.Equal(t.expected, c)

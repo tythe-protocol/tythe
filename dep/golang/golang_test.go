@@ -34,14 +34,14 @@ func TestBasics(t *testing.T) {
 		numExpected int
 		expectTest2 bool
 	}{
-		{zTest1, false, 4, true},
+		{zTest1, false, 2, true},
 		{zTest2, false, 0, false},
 		{"not-exist", true, 0, false},
-		{root, false, 39, false},
+		{root, false, 8, false},
 	}
 
 	for _, t := range tc {
-		ds, err := List(t.in)
+		ds, err := Dependencies(t.in)
 
 		if t.expectError {
 			assert.Error(err)
@@ -53,9 +53,11 @@ func TestBasics(t *testing.T) {
 
 		foundTest2 := false
 		for _, d := range ds {
-			if strings.HasPrefix(d.Name, "github.com/tythe-protocol/z_test2") {
+			f, err := os.Stat(Dir(d.Name, ""))
+			assert.NoError(err)
+			assert.True(f.IsDir())
+			if strings.Contains(d.Name, "github.com/tythe-protocol/z_test2") {
 				assert.False(foundTest2)
-				assert.Equal("0x73320b590ba564a70f5bb47c007636b272626df1", d.Conf.USDC)
 				foundTest2 = true
 			}
 		}

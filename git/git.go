@@ -1,15 +1,18 @@
 package git
 
 import (
+	"context"
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
 	"net/url"
 	"os"
+	"os/exec"
 	"path"
+	"path/filepath"
+	"time"
 
 	"github.com/pkg/errors"
-	gogit "gopkg.in/src-d/go-git.v4"
 )
 
 // DirForURL calculates a unique filename to store a repo in.
@@ -20,39 +23,59 @@ func DirForURL(url *url.URL, dataDir string) string {
 	return path.Join(dataDir, string(hex.EncodeToString(dirName[:])))
 }
 
+func runGit(wd string, args ...string) error {
+	var err error
+
+	for i := 0; ; i++ {
+		fmt.Printf("running %+v in %s\n", args, wd)
+
+		// For mysterious reasons, Git sometimes fails to exit.
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
+		cmd := exec.CommandContext(ctx, args[0], args[1:]...)
+		cmd.Dir = wd
+		err = cmd.Run()
+
+		if err == nil {
+			return nil
+		}
+
+		if i == 2 {
+			return err
+		}
+
+		fmt.Println("Retrying...")
+	}
+	return err
+}
+
 // Clone fetches the latest copy of the git repo at a URL to a local directory.
 func Clone(url *url.URL, dataPath string) (rootPath string, err error) {
-	w := func(err error) error {
-		return errors.Wrap(err, "Could not clone/sync git repo")
-	}
-
 	fullPath := DirForURL(url, dataPath)
 	_, err = os.Stat(fullPath)
 
 	if err == nil {
 		// repo already exists, sync it.
-		var wt *gogit.Worktree
-		r, err := gogit.PlainOpen(fullPath)
-		if err == nil {
-			wt, err = r.Worktree()
-			if err == nil {
-				err = wt.Pull(&(gogit.PullOptions{}))
-			}
-		}
-		if err != nil && err != gogit.NoErrAlreadyUpToDate {
-			return "", w(err)
+		err := runGit(fullPath, "git", "fetch", "--depth", "1")
+		if err != nil {
+			return "", errors.Wrapf(err, "Could not pull: %s: %s", url.String(), err.Error())
 		}
 		return fullPath, nil
 	}
 
 	if !os.IsNotExist(err) {
-		return "", w(err)
+		return "", errors.Wrapf(err, "Could not stat: %s: %s", url.String(), err.Error())
 	}
 
-	_, err = gogit.PlainClone(fullPath, false, &gogit.CloneOptions{
-		URL:   url.String(),
-		Depth: 1,
-	})
+	if url.Hostname() == "github.com" {
+		// TODO: Which protocol is fastest? ssh, https, or git?
+		url.Scheme = "https"
+	}
+	err = runGit("", "git", "clone", "--depth", "1", url.String(), fullPath)
+	if err != nil {
+		return "", errors.Wrapf(err, "Could not clone: %s: %s", url.String(), err.Error())
+	}
 	return fullPath, err
 }
 
@@ -60,6 +83,10 @@ func Clone(url *url.URL, dataPath string) (rootPath string, err error) {
 func Resolve(url *url.URL, cacheDir string) (path string, err error) {
 	if url.Scheme == "" {
 		path = url.String()
+		path, err = filepath.Abs(path)
+		if err != nil {
+			return "", errors.Wrapf(err, "Could not get absolute path of %s: %s", path, err.Error())
+		}
 		_, err := os.Stat(path)
 		if err != nil {
 			if os.IsNotExist(err) {

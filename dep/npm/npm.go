@@ -1,130 +1,110 @@
 package npm
 
 import (
-	"bufio"
-	"bytes"
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/url"
 	"os"
-	"os/exec"
-	ppath "path"
-	"path/filepath"
-	"runtime"
-	"strings"
+	"path"
+	"time"
 
-	"github.com/tythe-protocol/tythe/conf"
-	"github.com/tythe-protocol/tythe/dep/shared"
-
-	homedir "github.com/mitchellh/go-homedir"
+	retryablehttp "github.com/hashicorp/go-retryablehttp"
+	"github.com/tythe-protocol/tythe/dep"
+	"github.com/tythe-protocol/tythe/git"
 )
 
-// List returns all the transitive NPM dependencies of the package at <path>
-func List(path string) ([]shared.Dep, error) {
-	err := os.Chdir(path)
-	if err != nil {
-		return nil, err
-	}
-
-	defer os.Chdir("-")
-
-	_, err = os.Stat("package.json")
-	if os.IsNotExist(err) {
-		return nil, nil
-	}
-
-	// Ignore errors because ls returns errors for unmet peer deps, even when it is still returning useful info.
-	out, _ := exec.Command("npm", "ls").Output()
-	s := bufio.NewScanner(bytes.NewReader(out))
-	pkgs := map[string]struct{}{}
-
-	// Skip the first line - it is the root module itself
-	s.Scan()
-	for s.Scan() {
-		t := s.Text()
-		for _, f := range strings.Split(t, " ") {
-			if strings.Contains(f, "@") {
-				p := f[:strings.LastIndex(f, "@")]
-				pkgs[p] = struct{}{}
-			}
-		}
-	}
-
-	// This is basically an implementation of require.resolve, from:
-	// https://nodejs.org/api/modules.html#modules_all_together
-	dirs, err := searchDirs(path)
-	if err != nil {
-		return nil, err
-	}
-
-	r := []shared.Dep{}
-	for pkg := range pkgs {
-		for _, dir := range dirs {
-			modpath := ppath.Join(dir, "node_modules", pkg)
-			_, err := os.Stat(modpath)
-			if os.IsNotExist(err) {
-				continue
-			}
-			if err != nil {
-				return nil, err
-			}
-			c, err := conf.Read(modpath)
-			if err != nil {
-				return nil, err
-			}
-			d := shared.Dep{
-				Name: pkg,
-				Conf: c,
-			}
-			r = append(r, d)
-			break
-		}
-	}
-	return r, nil
+type version struct {
+	Name       string     `json:"name"`
+	Repository repository `json:"repository"`
 }
 
-func searchDirs(path string) ([]string, error) {
-	dirs, err := nodeGlobalFolders()
-	if err != nil {
-		return nil, err
-	}
-
-	path, err = filepath.Abs(path)
-	if err != nil {
-		return nil, err
-	}
-
-	for path != "" {
-		dir, leaf := ppath.Split(path)
-		if len(dir) > 0 {
-			dir = dir[:len(dir)-1]
-		}
-		if leaf != "node_modules" {
-			dirs = append(dirs, path)
-		}
-		path = dir
-	}
-
-	return dirs, nil
+type repository struct {
+	Type string `json:"type"`
+	URL  string `json:"url"`
 }
 
-func nodeGlobalFolders() ([]string, error) {
-	dirs := nodePath()
-	hd, err := homedir.Dir()
-	if err != nil {
-		return nil, err
-	}
-	dirs = append(dirs, ppath.Join(hd, ".node_modules"))
-	dirs = append(dirs, ppath.Join(hd, ".node_libraries"))
-	// TODO: node_prefix - I don't get this bit
-	return dirs, nil
+type dist struct {
+	Shasum  string `json:"shasum"`
+	Tarball string `json:"tarball"`
 }
 
-func nodePath() []string {
-	np := os.Getenv("NODE_PATH")
-	if np == "" {
+type pkg struct {
+	Name            string            `json:"name"`
+	Dependencies    map[string]string `json:"dependencies"`
+	DevDependencies map[string]string `json:"devDependencies"`
+}
+
+func httpClient() *retryablehttp.Client {
+	c := retryablehttp.NewClient()
+	c.RetryWaitMax = time.Second
+	c.RetryMax = 2
+	return c
+}
+
+func Dir(name, dataDir string) string {
+	apiURL := fmt.Sprintf("http://registry.npmjs.org/%s/latest", name)
+	resp, err := httpClient().Get(apiURL)
+	if err != nil {
+		log.Printf("Could not fetch %s: %s", apiURL, err.Error())
+		return ""
+	}
+
+	var v version
+	dec := json.NewDecoder(resp.Body)
+	err = dec.Decode(&v)
+	resp.Body.Close()
+	if err != nil {
+		log.Printf("Could not decode package.json: %s", err.Error())
+		return ""
+	}
+
+	if v.Repository.Type != "git" || v.Repository.URL == "" {
+		return ""
+	}
+
+	// download it
+	u, err := url.Parse(v.Repository.URL)
+	if err != nil {
+		log.Printf("Invalid repo URL: %s", err.Error())
+		return ""
+	}
+	p, err := git.Clone(u, dataDir)
+	if err != nil {
+		log.Printf("Cannot clone repo: %s", err.Error())
+		return ""
+	}
+
+	return p
+}
+
+func Dependencies(repoPath string) []dep.ID {
+	// parse the manifest
+	pf, err := os.Open(path.Join(repoPath, "package.json"))
+	if err != nil {
+		if !os.IsNotExist(err) {
+			log.Printf("Cannot read package.json: %s", err.Error())
+		}
 		return nil
 	}
-	sep := ":"
-	if runtime.GOOS == "windows" {
-		sep = ";"
+	defer pf.Close()
+
+	var pj pkg
+	err = json.NewDecoder(pf).Decode(&pj)
+	if err != nil {
+		log.Printf("Cannot parse package.json: %s", err.Error())
+		return nil
 	}
-	return strings.Split(np, sep)
+
+	// return dependencies
+	var r []dep.ID
+	for _, deps := range []map[string]string{pj.Dependencies} { // TODO: add devdependencies
+		for d := range deps {
+			r = append(r, dep.ID{
+				Type: dep.NPM,
+				Name: d,
+			})
+		}
+	}
+	return r
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/attic-labs/noms/go/d"
 
 	"github.com/pkg/errors"
-	"github.com/tythe-protocol/tythe/dep"
+	"github.com/tythe-protocol/tythe/dep/crawl"
 	"github.com/tythe-protocol/tythe/git"
 )
 
@@ -37,11 +37,7 @@ func list(cacheDir string) http.HandlerFunc {
 			return
 		}
 
-		ds, err := dep.List(p)
-		if err != nil {
-			bonk(w, err.Error())
-			return
-		}
+		ds := crawl.Crawl(p, cacheDir)
 
 		w.Header().Set("Content-type", "application/json")
 		w.WriteHeader(http.StatusOK)

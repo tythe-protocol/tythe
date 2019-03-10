@@ -10,6 +10,7 @@ import (
 	"github.com/tythe-protocol/tythe/coinbase"
 	"github.com/tythe-protocol/tythe/conf"
 	"github.com/tythe-protocol/tythe/dep"
+	"github.com/tythe-protocol/tythe/dep/crawl"
 	"github.com/tythe-protocol/tythe/git"
 	"github.com/tythe-protocol/tythe/paypal"
 
@@ -49,23 +50,22 @@ func payAll(app *kingpin.Application) (c command) {
 	roots := c.cmd.Arg("package", "one or more root packages to crawl").Required().URLList()
 
 	c.handler = func() {
-		tythed := map[string]*conf.Config{}
+		tythed := map[dep.ID]*conf.Config{}
 		totalDeps := 0
 
 		for _, r := range *roots {
 			p, err := git.Resolve(r, *cacheDir)
 			d.CheckErrorNoUsage(err)
 
-			ds, err := dep.List(p)
-			d.CheckErrorNoUsage(err)
+			ds := crawl.Crawl(p, *cacheDir)
 
 			for _, dep := range ds {
-				if _, ok := tythed[dep.Name]; ok {
+				if _, ok := tythed[dep.ID]; ok {
 					continue
 				}
 
 				if dep.Conf != nil {
-					tythed[dep.Name] = dep.Conf
+					tythed[dep.ID] = dep.Conf
 				}
 
 				totalDeps++
@@ -139,9 +139,7 @@ func list(app *kingpin.Application) (c command) {
 		dir, err := git.Resolve(*url, *cacheDir)
 		d.CheckErrorNoUsage(err)
 
-		deps, err := dep.List(dir)
-		d.CheckErrorNoUsage(err)
-
+		deps := crawl.Crawl(dir, *cacheDir)
 		for _, d := range deps {
 			addr := "<no tythe>"
 			if d.Conf != nil {

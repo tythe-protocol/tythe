@@ -65,24 +65,20 @@ func (c Config) AddressForType(paymentType string) string {
 
 // Read loads the Config of a package if there is one. Returns nil, nil if no config.
 func Read(dir string) (*Config, error) {
-	w := func(err error) error {
-		return errors.Wrapf(err, "Could not read config for package: %s:", dir)
+	w := func(err error, msg string, args ...interface{}) error {
+		return errors.Wrapf(err, "Could not read config for package %s: %s", dir, fmt.Sprintf(msg, args...))
 	}
 
-	f, err := os.Open(path.Join(dir, DonateFile))
+	df, err := os.Open(path.Join(dir, DonateFile))
 	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, nil
-		}
-		return nil, w(err)
+		return nil, nil
 	}
+	defer df.Close()
 
 	var c Config
-	d := json.NewDecoder(f)
-	err = d.Decode(&c)
-
+	err = json.NewDecoder(df).Decode(&c)
 	if err != nil {
-		return nil, w(errors.Wrap(err, "donate file is not valid JSON"))
+		return nil, w(err, "Could not parse donate file: %s", err.Error())
 	}
 
 	if c.BTC == "" && c.PayPal == "" && c.USDC == "" {
@@ -92,7 +88,7 @@ func Read(dir string) (*Config, error) {
 	// TODO: Test BTC address validity? Or can we rely on Coinbase (in which case, remove below)
 
 	if c.USDC != "" && !ValidUSDCAddress(c.USDC) {
-		return nil, fmt.Errorf("invalid destination address in donate file: \"%s\"", c.USDC)
+		return nil, w(fmt.Errorf("Invalid destination address in donate file: \"%s\"", c.USDC), "")
 	}
 
 	return &c, nil
