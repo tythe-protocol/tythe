@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import clarinet from 'clarinet';
 
 export default class List extends Component {
     constructor(props) {
@@ -10,13 +11,67 @@ export default class List extends Component {
     }
 
     componentDidMount() {
+        const parser = clarinet.parser();
+
+        const stack = [];
+        let key;
+        const peek = () => {
+            if (stack.length == 0) {
+                return null;
+            }
+            return stack[stack.length - 1];
+        }
+        const isArray = v => v.constructor == Array;
+        const append = v => {
+            const p = peek();
+            if (p) {
+                if (isArray(p)) {
+                    p.push(v);
+                } else {
+                    p[key] = v;
+                }
+            }
+            return v;
+        }
+
+        parser.onvalue = v => {
+            append(v);
+        };
+        parser.onopenobject = k => {
+            stack.push(append({}));
+            key = k;
+        };
+        parser.onkey = k => {
+            key = k;
+        };
+        parser.oncloseobject = () => {
+            const o = stack.pop();
+            if (stack.length == 1) {
+                console.log(o);
+            }
+        };
+        parser.onopenarray = () => {
+            stack.push(append([]));
+        };
+        parser.onclosearray = () => {
+            stack.pop();
+        }
+
         this.controller = new AbortController();
         fetch("/-/list?r=" + this.props.repo, {
            signal: this.controller.signal, 
-        }).then(r => r.json()).then(deps => {
-            this.setState({
-                deps: deps,
-            });
+        })
+        .then(r => {
+            const decoder = new TextDecoder();
+            const reader = r.body.getReader();
+            let chunk = ({done, value}) => {
+                if (!done) {
+                    const text = decoder.decode(value, {stream:true});
+                    parser.write(text);
+                    reader.read().then(chunk);
+                }
+            };
+            reader.read().then(chunk);
         }).catch(err => console.error);
     }
 

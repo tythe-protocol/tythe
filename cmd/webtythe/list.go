@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/attic-labs/noms/go/d"
-
 	"github.com/pkg/errors"
 	"github.com/tythe-protocol/tythe/dep/crawl"
 	"github.com/tythe-protocol/tythe/git"
@@ -41,7 +39,23 @@ func list(cacheDir string) http.HandlerFunc {
 
 		w.Header().Set("Content-type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		err = json.NewEncoder(w).Encode(ds)
-		d.PanicIfError(err)
+		w.Write([]byte{'[', '\n'})
+
+		enc := json.NewEncoder(w)
+		first := true
+		for d := range ds {
+			if first {
+				first = false
+			} else {
+				w.Write([]byte{','})
+			}
+
+			enc.Encode(d)
+			if f, ok := w.(http.Flusher); ok {
+				f.Flush()
+			}
+		}
+
+		w.Write([]byte{']', '\n'})
 	}
 }

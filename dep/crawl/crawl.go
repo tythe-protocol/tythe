@@ -21,7 +21,7 @@ func httpClient() *retryablehttp.Client {
 	return c
 }
 
-func Crawl(repourl, dataDir string) []dep.Dep {
+func Crawl(repourl, dataDir string) <-chan dep.Dep {
 	// Crawl performs a parallelized breadth first exploration of the graph rooted at repourl
 	// Nodes in the graph are dep.ID, and edges are child dependencies represented as (Dep)
 	// Child dependencies at each node can be found a variety of ways, and this will improve over time
@@ -31,8 +31,9 @@ func Crawl(repourl, dataDir string) []dep.Dep {
 	const concurrency = 64
 	q := []dep.ID{}          // queue of deps waiting to be explored
 	seen := map[dep.ID]SNT{} // deps we've already seen
-	r := []dep.Dep{}         // deps we have found
-	mu := sync.Mutex{}       // protects q, seen, r
+	mu := sync.Mutex{}       // protects q, seen
+
+	r := make(chan dep.Dep)
 
 	// pushes new IDs onto the queue to be processed
 	push := func(depIDs []dep.ID) {
@@ -65,13 +66,6 @@ func Crawl(repourl, dataDir string) []dep.Dep {
 		return true
 	}
 
-	// adds a new dep to the resultset
-	collect := func(d dep.Dep) {
-		mu.Lock()
-		defer mu.Unlock()
-		r = append(r, d)
-	}
-
 	// processes a single depname:
 	// - fetch the repo
 	// - construct the dep for the repo
@@ -82,7 +76,7 @@ func Crawl(repourl, dataDir string) []dep.Dep {
 		}
 		d, cdns := processDepID(depID, dataDir)
 		if !d.IsEmpty() {
-			collect(d)
+			r <- d
 		}
 		push(cdns)
 	}
@@ -93,22 +87,24 @@ func Crawl(repourl, dataDir string) []dep.Dep {
 	push(cdids)
 
 	// explore the graph concurrently until there are no more depnames queued
-	wg := sync.WaitGroup{}
-	for i := 0; i < concurrency; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for {
-				n := pop()
-				if n.IsEmpty() {
-					break
+	go func() {
+		wg := sync.WaitGroup{}
+		for i := 0; i < concurrency; i++ {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for {
+					n := pop()
+					if n.IsEmpty() {
+						break
+					}
+					processDep(n)
 				}
-				processDep(n)
-			}
-		}()
-	}
-
-	wg.Wait()
+			}()
+		}
+		wg.Wait()
+		close(r)
+	}()
 
 	return r
 }

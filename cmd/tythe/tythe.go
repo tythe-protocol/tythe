@@ -59,7 +59,7 @@ func payAll(app *kingpin.Application) (c command) {
 
 			ds := crawl.Crawl(p, *cacheDir)
 
-			for _, dep := range ds {
+			for dep := range ds {
 				if _, ok := tythed[dep.ID]; ok {
 					continue
 				}
@@ -140,7 +140,7 @@ func list(app *kingpin.Application) (c command) {
 		d.CheckErrorNoUsage(err)
 
 		deps := crawl.Crawl(dir, *cacheDir)
-		for _, d := range deps {
+		for d := range deps {
 			addr := "<no tythe>"
 			if d.Conf != nil {
 				addr = d.Conf.USDC
