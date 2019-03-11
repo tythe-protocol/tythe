@@ -15,6 +15,7 @@ import (
 
 func main() {
 	prod := kingpin.Flag("prod", "builds for the production os/arch").Bool()
+	kingpin.Parse()
 
 	_, dir, _, ok := runtime.Caller(0)
 	d.PanicIfFalse(ok)

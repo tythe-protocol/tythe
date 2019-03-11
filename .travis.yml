@@ -30,7 +30,7 @@ script:
 - cd z_test3
 - go build
 - cd ../tythe
-- go run ./cmd/webtythe/build.go
+- go run ./cmd/webtythe/build.go --prod
 - gox -os="linux darwin windows" -arch="amd64" ./cmd/tythe
 - go test -v -race ./...
 - go vet ./...
