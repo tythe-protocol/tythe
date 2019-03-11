@@ -37,23 +37,14 @@ npm install
 
 ```
 cd cmd/webtythe
-go build
-
-# Runs the API server on :8080
-./webtythe &
-
-cd ui
-
-# Runs the UI on :3030
-npm run start
+go run build.go
+./webtythe
 ```
 
 ### Production
 
 ```
 cd cmd/webtythe
-./build-prod.sh
-
-# Runs the API and UI on :8080
+go run build.go --prod
 ./webtythe
 ```
