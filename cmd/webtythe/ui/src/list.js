@@ -16,12 +16,12 @@ export default class List extends Component {
         const stack = [];
         let key;
         const peek = () => {
-            if (stack.length == 0) {
+            if (stack.length === 0) {
                 return null;
             }
             return stack[stack.length - 1];
         }
-        const isArray = v => v.constructor == Array;
+        const isArray = v => v.constructor === Array;
         const append = v => {
             const p = peek();
             if (p) {
@@ -46,7 +46,7 @@ export default class List extends Component {
         };
         parser.oncloseobject = () => {
             const o = stack.pop();
-            if (stack.length == 1) {
+            if (stack.length === 1) {
                 this.state.deps.push(o);
                 this.forceUpdate();
             }
