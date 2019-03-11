@@ -5,6 +5,7 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
+	"log"
 	"net/url"
 	"os"
 	"os/exec"
@@ -23,11 +24,11 @@ func DirForURL(url *url.URL, dataDir string) string {
 	return path.Join(dataDir, string(hex.EncodeToString(dirName[:])))
 }
 
-func runGit(wd string, args ...string) error {
+func runGit(wd string, l *log.Logger, args ...string) error {
 	var err error
 
 	for i := 0; ; i++ {
-		fmt.Printf("running %+v in %s\n", args, wd)
+		l.Printf("running %+v in %s\n", args, wd)
 
 		// For mysterious reasons, Git sometimes fails to exit.
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -45,18 +46,18 @@ func runGit(wd string, args ...string) error {
 			return err
 		}
 
-		fmt.Println("Retrying...")
+		l.Println("Retrying...")
 	}
 }
 
 // Clone fetches the latest copy of the git repo at a URL to a local directory.
-func Clone(url *url.URL, dataPath string) (rootPath string, err error) {
+func Clone(url *url.URL, dataPath string, l *log.Logger) (rootPath string, err error) {
 	fullPath := DirForURL(url, dataPath)
 	_, err = os.Stat(fullPath)
 
 	if err == nil {
 		// repo already exists, sync it.
-		err := runGit(fullPath, "git", "fetch", "--depth", "1")
+		err := runGit(fullPath, l, "git", "fetch", "--depth", "1")
 		if err != nil {
 			return "", errors.Wrapf(err, "Could not pull: %s: %s", url.String(), err.Error())
 		}
@@ -71,7 +72,7 @@ func Clone(url *url.URL, dataPath string) (rootPath string, err error) {
 		// TODO: Which protocol is fastest? ssh, https, or git?
 		url.Scheme = "https"
 	}
-	err = runGit("", "git", "clone", "--depth", "1", url.String(), fullPath)
+	err = runGit("", l, "git", "clone", "--depth", "1", url.String(), fullPath)
 	if err != nil {
 		return "", errors.Wrapf(err, "Could not clone: %s: %s", url.String(), err.Error())
 	}
@@ -79,7 +80,7 @@ func Clone(url *url.URL, dataPath string) (rootPath string, err error) {
 }
 
 // Resolve resolves a URL to a local or remote git repository to one that is local.
-func Resolve(url *url.URL, cacheDir string) (path string, err error) {
+func Resolve(url *url.URL, cacheDir string, l *log.Logger) (path string, err error) {
 	if url.Scheme == "" {
 		path = url.String()
 		path, err = filepath.Abs(path)
@@ -95,7 +96,7 @@ func Resolve(url *url.URL, cacheDir string) (path string, err error) {
 		}
 		// TODO: Probably want to copy to a temporary directory to avoid modifying target dir.
 	} else {
-		path, err = Clone(url, cacheDir)
+		path, err = Clone(url, cacheDir, l)
 		if err != nil {
 			return "", err
 		}

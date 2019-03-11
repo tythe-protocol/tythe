@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/tythe-protocol/tythe/cmd/flags"
@@ -13,6 +14,7 @@ import (
 	"github.com/tythe-protocol/tythe/dep/crawl"
 	"github.com/tythe-protocol/tythe/git"
 	"github.com/tythe-protocol/tythe/paypal"
+	"github.com/tythe-protocol/tythe/utl/status"
 
 	"github.com/attic-labs/noms/go/d"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
@@ -53,11 +55,12 @@ func payAll(app *kingpin.Application) (c command) {
 		tythed := map[dep.ID]*conf.Config{}
 		totalDeps := 0
 
+		l := log.New(status.Writer{}, "", 0)
 		for _, r := range *roots {
-			p, err := git.Resolve(r, *cacheDir)
+			p, err := git.Resolve(r, *cacheDir, l)
 			d.CheckErrorNoUsage(err)
 
-			ds := crawl.Crawl(p, *cacheDir)
+			ds := crawl.Crawl(p, *cacheDir, l)
 
 			for dep := range ds {
 				if _, ok := tythed[dep.ID]; ok {
@@ -72,6 +75,7 @@ func payAll(app *kingpin.Application) (c command) {
 			}
 		}
 
+		status.Clear()
 		fmt.Printf("Found %d total deps (%d tythed)\n", totalDeps, len(tythed))
 
 		spend := *totalAmount * float64(len(tythed)) / float64(totalDeps)
@@ -136,16 +140,20 @@ func list(app *kingpin.Application) (c command) {
 	url := c.cmd.Arg("package", "File path or URL of the package to list.").Required().URL()
 
 	c.handler = func() {
-		dir, err := git.Resolve(*url, *cacheDir)
+		w := status.Writer{}
+		l := log.New(w, "", 0)
+		dir, err := git.Resolve(*url, *cacheDir, l)
 		d.CheckErrorNoUsage(err)
 
-		deps := crawl.Crawl(dir, *cacheDir)
+		deps := crawl.Crawl(dir, *cacheDir, l)
 		for d := range deps {
 			addr := "<no tythe>"
 			if d.Conf != nil {
 				addr = d.Conf.USDC
 			}
-			fmt.Printf("%s %s\n", d, addr)
+			status.Clear()
+			status.Printf("%s %s", d, addr)
+			status.Enter()
 		}
 	}
 
@@ -160,8 +168,10 @@ func payOne(app *kingpin.Application) (c command) {
 	url := c.cmd.Arg("package", "File path or URL of the package to pay.").Required().URL()
 
 	c.handler = func() {
-		p, err := git.Resolve(*url, *cacheDir)
+		l := log.New(status.Writer{}, "", 0)
+		p, err := git.Resolve(*url, *cacheDir, l)
 		d.CheckErrorNoUsage(err)
+		status.Clear()
 
 		config, err := conf.Read(p)
 		d.CheckErrorNoUsage(err)

@@ -35,18 +35,19 @@ type pkg struct {
 	DevDependencies map[string]string `json:"devDependencies"`
 }
 
-func httpClient() *retryablehttp.Client {
+func httpClient(l *log.Logger) *retryablehttp.Client {
 	c := retryablehttp.NewClient()
 	c.RetryWaitMax = time.Second
 	c.RetryMax = 2
+	c.Logger = l
 	return c
 }
 
-func Dir(name, dataDir string) string {
+func Dir(name, dataDir string, l *log.Logger) string {
 	apiURL := fmt.Sprintf("http://registry.npmjs.org/%s/latest", name)
-	resp, err := httpClient().Get(apiURL)
+	resp, err := httpClient(l).Get(apiURL)
 	if err != nil {
-		log.Printf("Could not fetch %s: %s", apiURL, err.Error())
+		l.Printf("Could not fetch %s: %s", apiURL, err.Error())
 		return ""
 	}
 
@@ -55,7 +56,7 @@ func Dir(name, dataDir string) string {
 	err = dec.Decode(&v)
 	resp.Body.Close()
 	if err != nil {
-		log.Printf("Could not decode package.json: %s", err.Error())
+		l.Printf("Could not decode package.json: %s", err.Error())
 		return ""
 	}
 
@@ -66,24 +67,24 @@ func Dir(name, dataDir string) string {
 	// download it
 	u, err := url.Parse(v.Repository.URL)
 	if err != nil {
-		log.Printf("Invalid repo URL: %s", err.Error())
+		l.Printf("Invalid repo URL: %s", err.Error())
 		return ""
 	}
-	p, err := git.Clone(u, dataDir)
+	p, err := git.Clone(u, dataDir, l)
 	if err != nil {
-		log.Printf("Cannot clone repo: %s", err.Error())
+		l.Printf("Cannot clone repo: %s", err.Error())
 		return ""
 	}
 
 	return p
 }
 
-func Dependencies(repoPath string) []dep.ID {
+func Dependencies(repoPath string, l *log.Logger) []dep.ID {
 	// parse the manifest
 	pf, err := os.Open(path.Join(repoPath, "package.json"))
 	if err != nil {
 		if !os.IsNotExist(err) {
-			log.Printf("Cannot read package.json: %s", err.Error())
+			l.Printf("Cannot read package.json: %s", err.Error())
 		}
 		return nil
 	}
@@ -92,7 +93,7 @@ func Dependencies(repoPath string) []dep.ID {
 	var pj pkg
 	err = json.NewDecoder(pf).Decode(&pj)
 	if err != nil {
-		log.Printf("Cannot parse package.json: %s", err.Error())
+		l.Printf("Cannot parse package.json: %s", err.Error())
 		return nil
 	}
 

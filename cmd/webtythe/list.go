@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"net/url"
+	"os"
 
 	"github.com/pkg/errors"
 	"github.com/tythe-protocol/tythe/dep/crawl"
@@ -28,14 +30,14 @@ func list(cacheDir string) http.HandlerFunc {
 			badReq(w, "invalid parameter r: scheme must be http or https")
 			return
 		}
-
-		p, err := git.Resolve(repo, cacheDir)
+		l := log.New(os.Stdout, "", log.LstdFlags)
+		p, err := git.Resolve(repo, cacheDir, l)
 		if err != nil {
 			bonk(w, err.Error())
 			return
 		}
 
-		ds := crawl.Crawl(p, cacheDir)
+		ds := crawl.Crawl(p, cacheDir, l)
 
 		w.Header().Set("Content-type", "application/json")
 		w.WriteHeader(http.StatusOK)

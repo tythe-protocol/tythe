@@ -21,7 +21,7 @@ func httpClient() *retryablehttp.Client {
 	return c
 }
 
-func Crawl(repourl, dataDir string) <-chan dep.Dep {
+func Crawl(repourl, dataDir string, l *log.Logger) <-chan dep.Dep {
 	// Crawl performs a parallelized breadth first exploration of the graph rooted at repourl
 	// Nodes in the graph are dep.ID, and edges are child dependencies represented as (Dep)
 	// Child dependencies at each node can be found a variety of ways, and this will improve over time
@@ -74,7 +74,7 @@ func Crawl(repourl, dataDir string) <-chan dep.Dep {
 		if !mark(depID) {
 			return
 		}
-		d, cdns := processDepID(depID, dataDir)
+		d, cdns := processDepID(depID, dataDir, l)
 		if !d.IsEmpty() {
 			r <- d
 		}
@@ -83,7 +83,7 @@ func Crawl(repourl, dataDir string) <-chan dep.Dep {
 
 	// queue the initial children to explore
 	// we don't create a dep for the starting point
-	_, cdids := processRepo(repourl)
+	_, cdids := processRepo(repourl, l)
 	push(cdids)
 
 	// explore the graph concurrently until there are no more depnames queued
@@ -109,13 +109,13 @@ func Crawl(repourl, dataDir string) <-chan dep.Dep {
 	return r
 }
 
-func processDepID(id dep.ID, dataDir string) (r dep.Dep, childDepIDs []dep.ID) {
-	log.Printf("Crawling %s", id)
+func processDepID(id dep.ID, dataDir string, l *log.Logger) (r dep.Dep, childDepIDs []dep.ID) {
+	l.Printf("Crawling %s", id)
 
 	var dir string
 	switch id.Type {
 	case dep.NPM:
-		dir = npm.Dir(id.Name, dataDir)
+		dir = npm.Dir(id.Name, dataDir, l)
 		break
 	case dep.Go:
 		dir = golang.Dir(id.Name, dataDir)
@@ -128,20 +128,20 @@ func processDepID(id dep.ID, dataDir string) (r dep.Dep, childDepIDs []dep.ID) {
 		return dep.Dep{}, nil
 	}
 
-	c, cdns := processRepo(dir)
+	c, cdns := processRepo(dir, l)
 	return dep.Dep{
 		ID:   id,
 		Conf: c,
 	}, cdns
 }
 
-func processRepo(path string) (*conf.Config, []dep.ID) {
+func processRepo(path string, l *log.Logger) (*conf.Config, []dep.ID) {
 	var r []dep.ID
-	ds := npm.Dependencies(path)
+	ds := npm.Dependencies(path, l)
 	r = append(r, ds...)
 	ds, err := golang.Dependencies(path)
 	if err != nil {
-		log.Printf("Could not get golang dependencies: %s", err.Error())
+		l.Printf("Could not get golang dependencies: %s", err.Error())
 	} else {
 		r = append(r, ds...)
 	}
@@ -149,7 +149,7 @@ func processRepo(path string) (*conf.Config, []dep.ID) {
 	// load conf if any
 	c, err := conf.Read(path)
 	if err != nil {
-		log.Printf("Cannot parse .donate: %s", err.Error())
+		l.Printf("Cannot parse .donate: %s", err.Error())
 		return nil, nil
 	}
 
