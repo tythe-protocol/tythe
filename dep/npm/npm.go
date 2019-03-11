@@ -99,7 +99,7 @@ func Dependencies(repoPath string, l *log.Logger) []dep.ID {
 
 	// return dependencies
 	var r []dep.ID
-	for _, deps := range []map[string]string{pj.Dependencies} { // TODO: add devdependencies
+	for _, deps := range []map[string]string{pj.Dependencies} { // TODO: add devDependencies, peerDependencies
 		for d := range deps {
 			r = append(r, dep.ID{
 				Type: dep.NPM,
