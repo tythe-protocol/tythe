@@ -47,7 +47,6 @@ func runGit(wd string, args ...string) error {
 
 		fmt.Println("Retrying...")
 	}
-	return err
 }
 
 // Clone fetches the latest copy of the git repo at a URL to a local directory.
