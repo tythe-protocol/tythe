@@ -24,12 +24,12 @@ Companies run Tythe continuously - either as part of their build process or usin
 
 This is under active development. It's very rough around the edges but improving fast. Please contact me (aaron@aaronboodman.com) if you'd like to use it and I'll help you get started.
 
-## CLI
+### CLI
 
 * You can use the Tythe CLI to pay with Bitcoin or USDC
 * PayPal support coming soon
 
-## [tythe.dev](http://tythe.dev)
+### [tythe.dev](http://tythe.dev)
 
 Very early. All you can do so far is show your dependencies. Payment coming soon.
 
