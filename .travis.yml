@@ -4,10 +4,14 @@ go:
 os:
 - linux
 before_install:
-  # gox simplifies building for multiple architectures
-  - go get github.com/mitchellh/gox
+# gox simplifies building for multiple architectures
+- go get github.com/mitchellh/gox
 install:
-  - # skip
+install:
+- . $HOME/.nvm/nvm.sh
+- nvm install stable
+- nvm use stable
+- npm install
 env:
 - GO111MODULE=on
 script:
@@ -24,9 +28,10 @@ script:
 - cd z_test3
 - go build
 - cd ../tythe
-- go vet ./...
+- go run ./cmd/webtythe/build.go
 - gox -os="linux darwin windows" -arch="amd64" ./cmd/tythe
 - go test -v -race ./...
+- go vet ./...
 deploy:
   overwrite: true
   provider: releases
