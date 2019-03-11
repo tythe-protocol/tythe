@@ -4,8 +4,6 @@
   "private": true,
   "dependencies": {
     "clarinet": "^0.12.3",
-    "env-cmd": "^8.0.2",
-    "oboe": "^2.1.4",
     "prop-types": "^15.7.2",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
