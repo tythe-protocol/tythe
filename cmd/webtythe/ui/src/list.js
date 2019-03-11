@@ -6,7 +6,7 @@ export default class List extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            deps: null,
+            deps: [],
         };
     }
 
@@ -47,7 +47,8 @@ export default class List extends Component {
         parser.oncloseobject = () => {
             const o = stack.pop();
             if (stack.length == 1) {
-                console.log(o);
+                this.state.deps.push(o);
+                this.forceUpdate();
             }
         };
         parser.onopenarray = () => {
