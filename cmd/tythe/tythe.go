@@ -60,15 +60,18 @@ func payAll(app *kingpin.Application) (c command) {
 			p, err := git.Resolve(r, *cacheDir, l)
 			d.CheckErrorNoUsage(err)
 
-			ds := crawl.Crawl(p, *cacheDir, l)
+			rs := crawl.Crawl(p, *cacheDir, l)
 
-			for dep := range ds {
-				if _, ok := tythed[dep.ID]; ok {
+			for r := range rs {
+				if r.Dep == nil {
+					continue
+				}
+				if _, ok := tythed[r.Dep.ID]; ok {
 					continue
 				}
 
-				if dep.Conf != nil {
-					tythed[dep.ID] = dep.Conf
+				if r.Dep.Conf != nil {
+					tythed[r.Dep.ID] = r.Dep.Conf
 				}
 
 				totalDeps++
@@ -145,14 +148,17 @@ func list(app *kingpin.Application) (c command) {
 		dir, err := git.Resolve(*url, *cacheDir, l)
 		d.CheckErrorNoUsage(err)
 
-		deps := crawl.Crawl(dir, *cacheDir, l)
-		for d := range deps {
+		rs := crawl.Crawl(dir, *cacheDir, l)
+		for r := range rs {
+			if r.Dep == nil {
+				continue
+			}
 			addr := "<no tythe>"
-			if d.Conf != nil {
-				addr = d.Conf.USDC
+			if r.Dep.Conf != nil {
+				addr = r.Dep.Conf.USDC
 			}
 			status.Clear()
-			status.Printf("%s %s", d, addr)
+			status.Printf("%s %s", r.Dep, addr)
 			status.Enter()
 		}
 	}

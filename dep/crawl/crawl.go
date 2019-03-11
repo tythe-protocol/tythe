@@ -21,7 +21,17 @@ func httpClient() *retryablehttp.Client {
 	return c
 }
 
-func Crawl(repourl, dataDir string, l *log.Logger) <-chan dep.Dep {
+type Result struct {
+	Dep      *dep.Dep
+	Progress *Progress
+}
+
+type Progress struct {
+	Found     int `json:"found"`
+	Processed int `json:"processed"`
+}
+
+func Crawl(repourl, dataDir string, l *log.Logger) <-chan Result {
 	// Crawl performs a parallelized breadth first exploration of the graph rooted at repourl
 	// Nodes in the graph are dep.ID, and edges are child dependencies represented as (Dep)
 	// Child dependencies at each node can be found a variety of ways, and this will improve over time
@@ -29,17 +39,25 @@ func Crawl(repourl, dataDir string, l *log.Logger) <-chan dep.Dep {
 	// In the case of Golang, there would eventually be several: Go 1.11 modules, Godeps, etc.
 
 	const concurrency = 64
+	mu := sync.Mutex{}       // protects q, seen, progress
 	q := []dep.ID{}          // queue of deps waiting to be explored
 	seen := map[dep.ID]SNT{} // deps we've already seen
-	mu := sync.Mutex{}       // protects q, seen
+	progress := Progress{}
 
-	r := make(chan dep.Dep)
+	r := make(chan Result)
 
 	// pushes new IDs onto the queue to be processed
-	push := func(depIDs []dep.ID) {
+	push := func(ids []dep.ID) {
 		mu.Lock()
 		defer mu.Unlock()
-		q = append(q, depIDs...)
+		for _, id := range ids {
+			progress.Found++
+			q = append(q, id)
+		}
+		cp := progress
+		r <- Result{
+			Progress: &cp,
+		}
 	}
 
 	// pops the next dep or empty string if none left
@@ -71,23 +89,34 @@ func Crawl(repourl, dataDir string, l *log.Logger) <-chan dep.Dep {
 	// - construct the dep for the repo
 	// - queue any children for exploration
 	processDep := func(depID dep.ID) {
+		defer func() {
+			mu.Lock()
+			progress.Processed++
+			cp := progress
+			r <- Result{
+				Progress: &cp,
+			}
+			mu.Unlock()
+		}()
 		if !mark(depID) {
 			return
 		}
 		d, cdns := processDepID(depID, dataDir, l)
 		if !d.IsEmpty() {
-			r <- d
+			r <- Result{
+				Dep: &d,
+			}
 		}
 		push(cdns)
 	}
 
-	// queue the initial children to explore
-	// we don't create a dep for the starting point
-	_, cdids := processRepo(repourl, l)
-	push(cdids)
-
-	// explore the graph concurrently until there are no more depnames queued
 	go func() {
+		// queue the initial children to explore
+		// we don't create a dep for the starting point
+		_, cdids := processRepo(repourl, l)
+		push(cdids)
+
+		// explore the graph concurrently until there are no more depnames queued
 		wg := sync.WaitGroup{}
 		for i := 0; i < concurrency; i++ {
 			wg.Add(1)

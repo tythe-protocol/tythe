@@ -14,13 +14,13 @@ import (
 
 func list(cacheDir string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		rs := r.URL.Query().Get("r")
-		if rs == "" {
+		rp := r.URL.Query().Get("r")
+		if rp == "" {
 			badReq(w, "param r is required")
 			return
 		}
 
-		repo, err := url.Parse(rs)
+		repo, err := url.Parse(rp)
 		if err != nil {
 			badReq(w, errors.Wrapf(err, "invalid parameter r: %s", err).Error())
 			return
@@ -37,27 +37,26 @@ func list(cacheDir string) http.HandlerFunc {
 			return
 		}
 
-		ds := crawl.Crawl(p, cacheDir, l)
+		rs := crawl.Crawl(p, cacheDir, l)
 
 		w.Header().Set("Content-type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte{'[', '\n'})
+		w.Write([]byte("[\n"))
 
 		enc := json.NewEncoder(w)
-		first := true
-		for d := range ds {
-			if first {
-				first = false
-			} else {
-				w.Write([]byte{','})
+		for r := range rs {
+			if r.Dep != nil {
+				enc.Encode(*r.Dep)
 			}
-
-			enc.Encode(d)
+			if r.Progress != nil {
+				enc.Encode(*r.Progress)
+			}
+			w.Write([]byte{','})
 			if f, ok := w.(http.Flusher); ok {
 				f.Flush()
 			}
 		}
 
-		w.Write([]byte{']', '\n'})
+		w.Write([]byte("null]\n"))
 	}
 }

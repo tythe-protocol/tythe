@@ -6,7 +6,12 @@ export default class List extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            complete: false,
             deps: [],
+            progress: {
+                found: 0,
+                processed: 0,
+            },
         };
     }
 
@@ -47,7 +52,11 @@ export default class List extends Component {
         parser.oncloseobject = () => {
             const o = stack.pop();
             if (stack.length === 1) {
-                this.state.deps.push(o);
+                if (o.found) {
+                    this.setState({progress: o});
+                } else {
+                    this.state.deps.push(o);
+                }
                 this.forceUpdate();
             }
         };
@@ -66,11 +75,15 @@ export default class List extends Component {
             const decoder = new TextDecoder();
             const reader = r.body.getReader();
             let chunk = ({done, value}) => {
-                if (!done) {
-                    const text = decoder.decode(value, {stream:true});
-                    parser.write(text);
-                    reader.read().then(chunk);
+                if (done) {
+                    this.setState({
+                        complete: true,
+                    });
+                    return;
                 }
+                const text = decoder.decode(value, {stream:true});
+                parser.write(text);
+                reader.read().then(chunk);
             };
             reader.read().then(chunk);
         }).catch(err => console.error);
@@ -83,6 +96,7 @@ export default class List extends Component {
     render() {
         return <div>
             <div style={{fontSize: "1.5em", marginBottom: "1em"}}>{this.props.repo}</div>
+            <div>{progress(this.state.complete, this.state.progress)}</div>
             {table(this.state.deps)}
         </div>;
     }
@@ -92,9 +106,16 @@ List.propTypes = {
     repo: PropTypes.string.isRequired,
 };
 
+function progress(complete, progress) {
+    if (complete) {
+        return "Done!";
+    }
+    return "Loading " + progress.processed + "/" + progress.found + "...";
+}
+
 function table(deps) {
-    if (!deps) {
-        return "Loading...";
+    if (deps.lenght === 0) {
+        return null;
     }
     return <table cellSpacing="0" style={{borderCollapse: "collapse"}}>
         <tbody>
