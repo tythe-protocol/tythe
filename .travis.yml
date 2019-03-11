@@ -8,10 +8,12 @@ before_install:
 - go get github.com/mitchellh/gox
 install:
 install:
-- . $HOME/.nvm/nvm.sh
+- $HOME/.nvm/nvm.sh
 - nvm install stable
 - nvm use stable
+- cd ./cmd/webtythe/ui
 - npm install
+- cd -
 env:
 - GO111MODULE=on
 script:
