@@ -1,3 +1,4 @@
+// Package npm implements the npm-specific bits of dependency crawling.
 package npm
 
 import (

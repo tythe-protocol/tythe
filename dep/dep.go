@@ -1,3 +1,4 @@
+// Package dep implements dependency crawling for tythe.
 package dep
 
 import (

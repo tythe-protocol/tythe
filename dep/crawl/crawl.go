@@ -1,11 +1,9 @@
+// Package crawl implements the core of the dependency crawler.
 package crawl
 
 import (
 	"log"
 	"sync"
-	"time"
-
-	retryablehttp "github.com/hashicorp/go-retryablehttp"
 
 	"github.com/tythe-protocol/tythe/conf"
 	"github.com/tythe-protocol/tythe/dep"
@@ -14,30 +12,25 @@ import (
 	. "github.com/tythe-protocol/tythe/utl/sentinel"
 )
 
-func httpClient() *retryablehttp.Client {
-	c := retryablehttp.NewClient()
-	c.RetryWaitMax = time.Second
-	c.RetryMax = 2
-	return c
-}
-
+// Result contains information about a call to Crawl.
 type Result struct {
 	Dep      *dep.Dep
 	Progress *Progress
 }
 
+// Progress indicates the status of the crawl.
 type Progress struct {
 	Found     int `json:"found"`
 	Processed int `json:"processed"`
 }
 
+// Crawl performs a parallelized breadth first exploration of the graph rooted at repourl.
+// Nodes in the graph are dep.ID, and edges are dependencies to other dep.ID's.
+// Child dependencies at each node can be found a variety of strategies, and new strategies
+// will be added over time. There will typically be at least one strategy attempted at each
+// node per package ecosystem. In the case of Golang, there would eventually be several:
+// Go 1.11 modules, Godeps, etc.
 func Crawl(repourl, dataDir string, l *log.Logger) <-chan Result {
-	// Crawl performs a parallelized breadth first exploration of the graph rooted at repourl
-	// Nodes in the graph are dep.ID, and edges are child dependencies represented as (Dep)
-	// Child dependencies at each node can be found a variety of ways, and this will improve over time
-	// There will typically be at least one strategy attempted at each node per package ecosystem
-	// In the case of Golang, there would eventually be several: Go 1.11 modules, Godeps, etc.
-
 	const concurrency = 64
 	mu := sync.Mutex{}       // protects q, seen, progress
 	q := []dep.ID{}          // queue of deps waiting to be explored

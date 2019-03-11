@@ -1,3 +1,4 @@
+// Package golang implements the Go-specific parts of dependency crawling.
 package golang
 
 import (

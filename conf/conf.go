@@ -1,3 +1,5 @@
+// Package conf is for working with dot-donate files.
+// See: https://github.com/aboodman/dot-donate.
 package conf
 
 import (
@@ -14,13 +16,17 @@ import (
 type PaymentType string
 
 const (
-	// DonateFile is the name of the dot-donate file (see https://github.com/aboodman/dot-donate).
+	// DonateFile is the name of the dot-donate file.
 	DonateFile string = ".donate"
 
-	PaymentTypeBTC    string = "BTC"
+	// PaymentTypeBTC indicates payment should happen using the Bitcoin network.
+	PaymentTypeBTC string = "BTC"
+	// PaymentTypePayPal indicates payment should happen using PayPal.
 	PaymentTypePayPal string = "PayPal"
-	PaymentTypeUSDC   string = "USDC"
-	PaymentTypeNone   string = ""
+	// PaymentTypeUSDC indicates payment should happen using Coinbase's stablecoin, USDC.
+	PaymentTypeUSDC string = "USDC"
+	// PaymentTypeNone indicates no payment type.
+	PaymentTypeNone string = ""
 )
 
 var (
@@ -39,6 +45,8 @@ type Config struct {
 	USDC   string `json:"USDC,omitempty"`
 }
 
+// PreferredPaymentType returns the payment type that should be used, in the case that multiple
+// are specified.
 func (c Config) PreferredPaymentType() string {
 	switch {
 	case c.BTC != "":
@@ -51,6 +59,7 @@ func (c Config) PreferredPaymentType() string {
 	return PaymentTypeNone
 }
 
+// AddressForType returns the address to be used for a particular payment type.
 func (c Config) AddressForType(paymentType string) string {
 	switch paymentType {
 	case PaymentTypeBTC:

@@ -1,3 +1,4 @@
+// Package git contains utilities for working with the Git VCS.
 package git
 
 import (

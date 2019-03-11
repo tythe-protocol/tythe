@@ -1,3 +1,4 @@
+// Package coinbase provides utilities for working with Coinbase.
 package coinbase
 
 import (

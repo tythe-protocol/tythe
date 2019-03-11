@@ -1,3 +1,4 @@
+// Package env contains utilities for working with environment variables.
 package env
 
 import (

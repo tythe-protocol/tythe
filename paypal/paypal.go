@@ -1,3 +1,4 @@
+// Package paypal contains utilities for working with PayPal.com.
 package paypal
 
 import (
