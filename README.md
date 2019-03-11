@@ -14,17 +14,24 @@ This declares that the projects wants to receive donations (and how those donati
 
 ### 2. Companies decide an amount to commit to open source
 
-We recommend ["Up to 1%* of R&D"](./covenant.md), but it's up to you!
+We recommend ["Up to 1%* of R&D"](./covenant.md), but it's your choice.
 
 ### 3. Open Source gets funded
 
-Companies run Tythe continuously (e.g., as part of their build process). Tythe monitors dependency trees for participating projects and automatically distributes funds to them. Companies can divide funds however they like, but Tythe provide some easy ways to configure.
+Companies run Tythe continuously - either as part of their build process or using [tythe.dev](http://tythe.dev). Tythe monitors dependency trees for participating projects and automatically distributes funds to them. Companies can divide funds however they like, but Tythe provide some reasonable defaults and easy ways to configure.
 
 # Status
 
-This is under active development, and is rough around the edges. But it does work!
+This is under active development. It's very rough around the edges but improving fast. Please contact me (aaron@aaronboodman.com) if you'd like to use it and I'll help you get started.
 
-Please contact me (aaron@aaronboodman.com) if you'd like to use it and I'll help you get started.
+## CLI
+
+* You can use the Tythe CLI to pay with Bitcoin or USDC
+* PayPal support coming soon
+
+## [tythe.dev](http://tythe.dev)
+
+Very early. All you can do so far is show your dependencies. Payment coming soon.
 
 # Setup
 
