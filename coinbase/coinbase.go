@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	gdax "github.com/preichenberger/go-gdax"
-	"github.com/tythe-protocol/tythe/env"
+	"github.com/tythe-protocol/tythe/utl/env"
 )
 
 // SendResult represents the results of sending one individual transaction on Coinbase.
