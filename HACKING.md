@@ -9,6 +9,9 @@
 
 ```
 git clone https://github.com/tythe-protocol/tythe
+git clone https://github.com/tythe-protocol/z_test1
+git clone https://github.com/tythe-protocol/z_test2
+go generate ./...
 cd tythe
 ```
 
