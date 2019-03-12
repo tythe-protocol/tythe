@@ -11,6 +11,7 @@
 git clone https://github.com/tythe-protocol/tythe
 git clone https://github.com/tythe-protocol/z_test1
 git clone https://github.com/tythe-protocol/z_test2
+cd tythe
 ```
 
 # Important Note on Go Modules
@@ -31,21 +32,16 @@ go build ./cmd/tythe
 ```
 cd cmd/webtythe/ui
 npm install
+cd -
 ```
 
-### Development
+### Needed every time
 
 ```
 cd cmd/webtythe
 go run build.go
-./webtythe
-```
 
-### Production
-
-```
-cd cmd/webtythe
-go run build.go --prod
+# Run server on :8080
 ./webtythe
 ```
 
