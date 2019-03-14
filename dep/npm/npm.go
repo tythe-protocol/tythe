@@ -31,9 +31,10 @@ type dist struct {
 }
 
 type pkg struct {
-	Name            string            `json:"name"`
-	Dependencies    map[string]string `json:"dependencies"`
-	DevDependencies map[string]string `json:"devDependencies"`
+	Name             string            `json:"name"`
+	Dependencies     map[string]string `json:"dependencies"`
+	DevDependencies  map[string]string `json:"devDependencies"`
+	PeerDependencies map[string]string `json:"peerDependencies"`
 }
 
 func httpClient(l *log.Logger) *retryablehttp.Client {
@@ -80,7 +81,13 @@ func Dir(name, dataDir string, l *log.Logger) string {
 	return p
 }
 
-func Dependencies(repoPath string, l *log.Logger) []dep.ID {
+type Options struct {
+	Dependencies     bool
+	DevDependencies  bool
+	PeerDependencies bool
+}
+
+func Dependencies(repoPath string, opts Options, l *log.Logger) []dep.ID {
 	// parse the manifest
 	pf, err := os.Open(path.Join(repoPath, "package.json"))
 	if err != nil {
@@ -99,8 +106,18 @@ func Dependencies(repoPath string, l *log.Logger) []dep.ID {
 	}
 
 	// return dependencies
+	depss := []map[string]string{}
+	if opts.Dependencies {
+		depss = append(depss, pj.Dependencies)
+	}
+	if opts.DevDependencies {
+		depss = append(depss, pj.DevDependencies)
+	}
+	if opts.PeerDependencies {
+		depss = append(depss, pj.PeerDependencies)
+	}
 	var r []dep.ID
-	for _, deps := range []map[string]string{pj.Dependencies} { // TODO: add devDependencies, peerDependencies
+	for _, deps := range depss {
 		for d := range deps {
 			r = append(r, dep.ID{
 				Type: dep.NPM,

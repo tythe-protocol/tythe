@@ -106,7 +106,7 @@ func Crawl(repourl, dataDir string, l *log.Logger) <-chan Result {
 	go func() {
 		// queue the initial children to explore
 		// we don't create a dep for the starting point
-		_, cdids := processRepo(repourl, l)
+		_, cdids := processRepo(repourl, true, l)
 		push(cdids)
 
 		// explore the graph concurrently until there are no more depnames queued
@@ -150,16 +150,23 @@ func processDepID(id dep.ID, dataDir string, l *log.Logger) (r dep.Dep, childDep
 		return dep.Dep{}, nil
 	}
 
-	c, cdns := processRepo(dir, l)
+	c, cdns := processRepo(dir, false, l)
 	return dep.Dep{
 		ID:   id,
 		Conf: c,
 	}, cdns
 }
 
-func processRepo(path string, l *log.Logger) (*conf.Config, []dep.ID) {
+func processRepo(path string, isRoot bool, l *log.Logger) (*conf.Config, []dep.ID) {
+	opts := npm.Options{
+		Dependencies: true,
+	}
+	if isRoot {
+		opts.DevDependencies = true
+		opts.PeerDependencies = true
+	}
 	var r []dep.ID
-	ds := npm.Dependencies(path, l)
+	ds := npm.Dependencies(path, opts, l)
 	r = append(r, ds...)
 	ds, err := golang.Dependencies(path)
 	if err != nil {
