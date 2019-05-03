@@ -1,3 +1,9 @@
+# Status
+
+This project is on indefinite pause while I work on other things. I hope to come back to it someday.
+
+I think the beginning of the crawl system is pretty cool though. Feel free to lift it.
+
 # Overview
 
 Tythe is a simple, open, and transparent way for companies to fund the Open Source Software they rely on.
