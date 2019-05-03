@@ -1,6 +1,6 @@
 # Status
 
-This project is on indefinite pause while I work on other things. I hope to come back to it someday.
+**This project is on indefinite pause while I work on other things. I hope to come back to it someday.**
 
 I think the beginning of the crawl system is pretty cool though. Feel free to lift it.
 
@@ -25,10 +25,6 @@ We recommend ["Up to 1%* of R&D"](./covenant.md), but it's your choice.
 ### 3. Open Source gets funded
 
 Companies run Tythe continuously - either as part of their build process or using [tythe.dev](http://tythe.dev). Tythe monitors dependency trees for participating projects and automatically distributes funds to them. Companies can divide funds however they like, but Tythe provide some reasonable defaults and easy ways to configure.
-
-# Status
-
-This is under active development. It's very rough around the edges but improving fast. Please contact me (aaron@aaronboodman.com) if you'd like to use it and I'll help you get started.
 
 ### CLI
 
