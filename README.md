@@ -8,7 +8,7 @@ I think the beginning of the crawl system is pretty cool though. Feel free to li
 
 Tythe is a simple, open, and transparent way for companies to fund the Open Source Software they rely on.
 
-Tythe has no middlemen, no chokepoints, no fees, no contracts, and no opaque division of proceeds.
+Tythe has no middlemen, no chokepoints, no fees, no contracts, and distributes money transparently.
 
 It's an Open Source-style solution to the Open Source maintenance problem.
 
